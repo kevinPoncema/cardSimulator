@@ -21,6 +21,7 @@ class TelemetryCollector(ITelemetryProvider):
         self._readings: dict[str, SensorReading] = {}
         self._wrong_ways: dict[str, bool] = {}
         self._heading_alignments: dict[str, float] = {}
+        self._turn_dirs: dict[str, float] = {}
         self._default_car_id: str | None = None
 
     @staticmethod
@@ -64,6 +65,7 @@ class TelemetryCollector(ITelemetryProvider):
         self._observations[car.car_id] = obs
         self._wrong_ways[car.car_id] = bool(car.is_wrong_way)
         self._heading_alignments[car.car_id] = float(car.track_heading_alignment)
+        self._turn_dirs[car.car_id] = float(getattr(car, "turn_to_track_dir", 1.0))
         return obs
 
     def is_wrong_way(self, car_id: str | None = None) -> bool:
@@ -79,6 +81,13 @@ class TelemetryCollector(ITelemetryProvider):
         if target_id is None:
             return 1.0
         return self._heading_alignments.get(target_id, 1.0)
+
+    def get_turn_to_track_dir(self, car_id: str | None = None) -> float:
+        """Retorna la dirección angular de giro (+1 derecha, -1 izquierda) para encarar la pista."""
+        target_id = car_id or self._default_car_id
+        if target_id is None:
+            return 1.0
+        return self._turn_dirs.get(target_id, 1.0)
 
     def get_observation(self, car_id: str | None = None) -> np.ndarray:
         """Retorna el vector de estado normalizado S -> np.ndarray (Sección 6.2)."""

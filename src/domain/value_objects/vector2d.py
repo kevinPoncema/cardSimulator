@@ -49,6 +49,10 @@ class Vector2D:
         """Producto escalar (dot product) entre dos vectores 2D."""
         return self.x * other.x + self.y * other.y
 
+    def cross(self, other: Vector2D) -> float:
+        """Producto vectorial 2D (componente Z perpendicular: x1*y2 - y1*x2)."""
+        return self.x * other.y - self.y * other.x
+
     def rotate(self, radians: float) -> Vector2D:
         """Rota el vector un ángulo dado en radianes."""
         cos_a = math.cos(radians)

@@ -72,9 +72,9 @@ SURFACE_CATALOG: dict[str, SurfaceProperties] = {
     ),
     "oil": SurfaceProperties(
         name="oil",
-        traction_multiplier=0.50,
-        drag_multiplier=0.85,
-        lateral_grip_multiplier=0.12,
+        traction_multiplier=0.60,
+        drag_multiplier=0.90,
+        lateral_grip_multiplier=0.18,
     ),
 }
 
@@ -156,6 +156,35 @@ def _compute_offset_rings(
         outer_ring.append(centerline[i] + normal * offset)
         inner_ring.append(centerline[i] - normal * offset)
     return outer_ring, inner_ring
+
+
+def untangle_ring(ring: list[Vector2D]) -> list[Vector2D]:
+    """Elimina bucles auto-intersectantes generados por contracciones de curvatura en anillos de offset."""
+    poly = list(ring)
+    changed = True
+    iterations = 0
+    while changed and iterations < 40:
+        changed = False
+        iterations += 1
+        n = len(poly)
+        for i in range(n):
+            for j in range(i + 2, n):
+                if i == 0 and j == n - 1:
+                    continue
+                p1, p2 = poly[i], poly[(i + 1) % n]
+                p3, p4 = poly[j], poly[(j + 1) % n]
+                if segments_intersect(p1, p2, p3, p4):
+                    denom = (p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x)
+                    if abs(denom) > 1e-6:
+                        t = ((p1.x - p3.x) * (p3.y - p4.y) - (p1.y - p3.y) * (p3.x - p4.x)) / denom
+                        ix = p1.x + t * (p2.x - p1.x)
+                        iy = p1.y + t * (p2.y - p1.y)
+                        poly = poly[:i + 1] + [Vector2D(ix, iy)] + poly[j + 1:]
+                        changed = True
+                        break
+            if changed:
+                break
+    return poly
 
 
 def _ring_to_segments(
@@ -620,8 +649,8 @@ class Track:
         self.outer_wall_polygon, self.inner_wall_polygon = _compute_offset_rings(
             self.centerline, self.wall_half_width
         )
-        self.outer_walls = _ring_to_segments(self.outer_wall_polygon)
-        self.inner_walls = _ring_to_segments(self.inner_wall_polygon)
+        self.outer_walls = _ring_to_segments(untangle_ring(self.outer_wall_polygon))
+        self.inner_walls = _ring_to_segments(untangle_ring(self.inner_wall_polygon))
 
     def _build_gates(self, num_gates: int = 4) -> None:
         """Genera 4 puertas transversales equidistantes (0 = Meta, 1..3 = Checkpoints de vuelta)."""
@@ -633,12 +662,14 @@ class Track:
             idx = (self.start_index + (g * n) // num_gates) % n
             prev_pt = self.centerline[(idx - 1) % n]
             next_pt = self.centerline[(idx + 1) % n]
-            forward_normal = (next_pt - prev_pt).normalized()
+            tangent = (next_pt - prev_pt).normalized()
+            normal = Vector2D(-tangent.y, tangent.x)
+            forward_normal = tangent
             self.gates.append(
                 TrackGate(
                     gate_id=g,
-                    outer_point=self.outer_wall_polygon[idx],
-                    inner_point=self.inner_wall_polygon[idx],
+                    outer_point=self.centerline[idx] + normal * self.wall_half_width,
+                    inner_point=self.centerline[idx] - normal * self.wall_half_width,
                     center=self.centerline[idx],
                     forward_normal=forward_normal,
                 )

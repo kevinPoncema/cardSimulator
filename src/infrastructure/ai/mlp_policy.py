@@ -154,63 +154,14 @@ class MLPPolicy:
     def predict_car_action(
         self, obs: np.ndarray, heading_alignment: float | None = None
     ) -> CarAction:
-        """Convierte la observación S en un CarAction con maniobra inteligente de reversa en línea recta y corrección segura."""
+        """Convierte la observación S en un CarAction mediante inferencia de la red neuronal."""
         raw = self.forward(obs)
         longitudinal = float(np.clip(raw[0], -1.0, 1.0))
         steer = float(np.clip(raw[1], -1.0, 1.0))
 
-        if obs.size >= 7:
-            d_0 = float(obs[0])
-            d_45_l = float(obs[1])
-            d_45_r = float(obs[2])
-            d_90_l = float(obs[3])
-            d_90_r = float(obs[4])
-            v_norm = float(obs[5])
-
-            # Determinar hacia qué lado de la curva hay mayor espacio abierto
-            open_side_signal = (d_45_l - d_45_r) * 1.0 + (d_90_l - d_90_r) * 0.7
-            preferred_dir = 1.0 if open_side_signal >= 0.0 else -1.0
-
-            # Detectar si el coche se ha chocado o estancado frontalmente contra un obstáculo/muro
-            if d_0 < 0.15 or (d_0 < 0.25 and abs(v_norm) < 0.04):
-                self._stalled_steps += 1
-            else:
-                self._stalled_steps = max(0, self._stalled_steps - 1)
-
-            # Activar maniobra de retroceso corto (9 frames) EN LÍNEA RECTA para despejar el morro sin rotar el chasis
-            if self._reverse_escape_steps == 0 and (d_0 < 0.13 or self._stalled_steps >= 6):
-                self._reverse_escape_steps = 9
-                self._escape_steer_dir = preferred_dir
-                self._stalled_steps = 0
-
-            if self._reverse_escape_steps > 0:
-                self._reverse_escape_steps -= 1
-                # Retroceso en línea recta (steer=0.0): retrocede directamente separándose del muro
-                # sin aplicar fuerza angular que lo haga trompear o dar media vuelta hacia atrás
-                return CarAction(
-                    throttle=0.0,
-                    brake=0.85,
-                    steer=0.0,
-                    handbrake=False,
-                )
-
-            # Si el frente aún es cercano (0.13 <= d_0 < 0.32), avanzar suavemente con giro moderado
-            if d_0 < 0.32:
-                cautious_throttle = max(0.40, min(0.65, longitudinal))
-                # Giro suave y acotado (máximo 0.60) para no sobrevirar ni dar media vuelta
-                soft_steer = np.clip(steer * 0.65 + preferred_dir * 0.35, -0.60, 0.60)
-                # Si el vehículo ya está perdiendo alineación respecto a la pista, evitar giros que lo encaren al revés
-                if heading_alignment is not None and heading_alignment < 0.35:
-                    soft_steer = np.clip(soft_steer, -0.25, 0.25)
-                return CarAction(
-                    throttle=float(cautious_throttle),
-                    brake=0.0,
-                    steer=float(soft_steer),
-                    handbrake=False,
-                )
-
+        # Modulación de conducción estándar y freno de mano si aplica
         handbrake = bool(
-            obs.size >= 6 and float(obs[0]) < 0.32 and float(obs[5]) > 0.48 and abs(steer) > 0.75
+            obs.size >= 6 and float(obs[0]) < 0.30 and float(obs[5]) > 0.50 and abs(steer) > 0.80
         )
         throttle = max(0.0, longitudinal)
         brake = max(0.0, -longitudinal)

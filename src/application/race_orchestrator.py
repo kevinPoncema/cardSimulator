@@ -151,12 +151,19 @@ class RaceOrchestrator:
             # Detectar si el vehículo circula o está encarado en sentido contrario a la pista
             tangent = self.track.closest_centerline_tangent(car.position)
             heading_dot = car.forward_unit_vector().dot(tangent)
+            cross_val = car.forward_unit_vector().cross(tangent)
             vel_dot = car.velocity.dot(tangent)
+
             car.track_heading_alignment = float(heading_dot)
-            if car.velocity.magnitude() > 25.0:
-                car.is_wrong_way = bool(vel_dot < -15.0 or (heading_dot < -0.3 and vel_dot < 10.0))
+            car.turn_to_track_dir = 1.0 if cross_val >= 0.0 else -1.0
+
+            if car.velocity.magnitude() > 30.0:
+                car.is_wrong_way = bool(
+                    (vel_dot < -25.0 and heading_dot < 0.0)
+                    or (heading_dot < -0.40 and vel_dot < 5.0)
+                )
             else:
-                car.is_wrong_way = bool(heading_dot < -0.25)
+                car.is_wrong_way = bool(heading_dot < -0.40)
 
             reading = self.sensor.scan(car)
             self.telemetry.collect(car, reading)

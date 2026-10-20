@@ -111,10 +111,15 @@ class PymunkCarBody:
 
         self.body.velocity = fwd * v_fwd_new + right * v_lat_new
 
-        # 4. Giro directo sin inercia parásita al soltar el volante
+        # 4. Giro directo y fluido (permite rotar para despegarse de muros incluso detenido si se presiona acelerador)
         speed_mag = abs(v_fwd_new)
-        if speed_mag > 3.0 and abs(action.steer) > 1e-4:
-            low_speed_ramp = min(1.0, speed_mag / 65.0)
+        is_active_turn = abs(action.steer) > 1e-4 and (
+            speed_mag > 0.8
+            or action.throttle > 0.05
+            or action.brake > 0.05
+        )
+        if is_active_turn:
+            low_speed_ramp = max(0.70, min(1.0, speed_mag / 30.0))
             high_speed_stability = 1.0 - 0.20 * min(1.0, speed_mag / cfg.max_forward_speed)
             direction_sign = 1.0 if v_fwd_new >= -2.0 else -1.0
             drift_turn_boost = 1.18 if action.handbrake else 1.0
@@ -132,7 +137,7 @@ class PymunkCarBody:
                 min(cfg.max_angular_velocity, target_omega),
             )
         else:
-            # Detener la rotación inmediatamente cuando el humano suelta A/D o Izq/Der
+            # Detener la rotación inmediatamente cuando el humano o IA suelta el volante
             self.body.angular_velocity = 0.0
 
     def sync_to_domain(self) -> None:

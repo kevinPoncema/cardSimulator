@@ -169,12 +169,19 @@ class CarRacingRLEnv:
         # Detectar sentido contrario (por velocidad negativa o morro apuntando al revés)
         tangent = self.track.closest_centerline_tangent(self.car.position)
         heading_dot = self.car.forward_unit_vector().dot(tangent)
+        cross_val = self.car.forward_unit_vector().cross(tangent)
         vel_dot = self.car.velocity.dot(tangent)
+
         self.car.track_heading_alignment = float(heading_dot)
-        if self.car.velocity.magnitude() > 25.0:
-            self.car.is_wrong_way = bool(vel_dot < -15.0 or (heading_dot < -0.3 and vel_dot < 10.0))
+        self.car.turn_to_track_dir = 1.0 if cross_val >= 0.0 else -1.0
+
+        if self.car.velocity.magnitude() > 30.0:
+            self.car.is_wrong_way = bool(
+                (vel_dot < -25.0 and heading_dot < 0.0)
+                or (heading_dot < -0.40 and vel_dot < 5.0)
+            )
         else:
-            self.car.is_wrong_way = bool(heading_dot < -0.25)
+            self.car.is_wrong_way = bool(heading_dot < -0.40)
 
         reading = self.sensor.scan(self.car)
         obs = self.telemetry.collect(self.car, reading)

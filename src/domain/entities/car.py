@@ -58,6 +58,7 @@ class Car(IControllable):
     checkpoints_passed_in_lap: int = 0
     is_wrong_way: bool = False
     track_heading_alignment: float = 1.0
+    turn_to_track_dir: float = 1.0
     active_collisions: set[str] = field(default_factory=set)
     stuck_against_wall_steps: int = 0
 

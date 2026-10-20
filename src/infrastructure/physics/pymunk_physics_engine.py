@@ -61,8 +61,8 @@ class PymunkPhysicsEngine(IPhysicsEngine):
                 seg.end.to_tuple(),
                 3.0,
             )
-            pymunk_seg.elasticity = seg.elasticity
-            pymunk_seg.friction = seg.friction
+            pymunk_seg.elasticity = max(0.25, seg.elasticity)
+            pymunk_seg.friction = 0.06
             pymunk_seg.filter = pymunk.ShapeFilter(categories=WALL_CATEGORY)
             pymunk_seg.obstacle_tag = "wall"
             self.space.add(pymunk_seg)
@@ -88,8 +88,8 @@ class PymunkPhysicsEngine(IPhysicsEngine):
                 body.position = (obs.position.x, obs.position.y)
                 body.angle = math.radians(obs.angle_deg)
                 shape = pymunk.Poly.create_box(body, (obs.width, obs.height), radius=1.0)
-                shape.elasticity = 0.20
-                shape.friction = 0.40
+                shape.elasticity = 0.30
+                shape.friction = 0.06
                 shape.filter = pymunk.ShapeFilter(categories=WALL_CATEGORY)
                 shape.obstacle_tag = "barrier"
                 self.space.add(body, shape)
