@@ -54,12 +54,17 @@ A continuación se detallan las trampas descubiertas durante el desarrollo y có
 
 ---
 
-### 2.3 El Problema del Atasco en Paredes: Castigo Escalonado vs Reversa
-* **La conducta parásita:** Al colisionar frontalmente contra un muro perimetral en una curva cerrada (ej. Mapa 3 *Pocket Chicane*), la velocidad longitudinal cae a $0$. Si el volante gira a la derecha pero las ruedas no traccionan, el coche se quedaba haciendo micro-vibraciones contra la pared esperando que el cronómetro terminara.
-* **La corrección:**
-  - `wall_stuck_step_penalty = -14.0` con factor de escalado progresivo ($2.2\times$): a cada décima de segundo que pasa pegado a la pared, el castigo se duplica.
-  - `reverse_escape_reward = +4.5`: Si el agente detecta muro frontal y frena en seco o mete marcha atrás (`v_fwd < -15.0`), se le premia activamente.
-  - La red aprende que **tocar la pared no es el fin del mundo si inmediatamente das marcha atrás, abres ángulo y corriges la trazada**.
+### 2.3 El Problema del Atasco en Paredes: Castigo Escalonado, Reversa Recta y Prevención de Media Vuelta
+* **La conducta parásita original:** Al colisionar frontalmente contra un muro en una curva cerrada (ej. Mapa 3 *Pocket Chicane*), la velocidad cae a cero y el coche se quedaba haciendo micro-vibraciones contra la pared sin traccionar.
+* **El bug de la "Media Vuelta" (Turnaround Bug):**
+  * Si la maniobra de retroceso aplicaba volante lateral mientras retrocedía (`steer = ±1.0`), la física angular de Chipmunk rotaba el chasis $\sim 80^\circ$ marcha atrás. Al volver a avanzar con giro forzado, el coche completaba más de $150^\circ-180^\circ$ de rotación, **terminando encarado en sentido contrario hacia la recta de donde venía**.
+  * Al quedar mirando hacia atrás, los rayos LIDAR veían la recta despejada al frente ($d_0 = 1.0$), por lo que la IA pisaba el acelerador a fondo creyendo que avanzaba correctamente.
+* **La solución arquitectónica definitiva:**
+  1. **Retroceso Corto y Recto (`steer = 0.0` durante 8-9 frames):** La marcha atrás se ejecuta con el volante estrictamente recto. Esto separa el parachoques del muro $\sim 25\text{ px}$ con **cero rotación angular parásita**, preservando intacta la orientación frontal hacia la curva.
+  2. **Avance Cauteloso con Bloqueo de Ángulo (`heading_alignment`):** Al reanudar la marcha hacia adelante, el giro está acotado ($\le \pm 0.60$) y se supervisa la alineación con la tangente de la pista. Si el coche se desvía más de $70^\circ$, se neutraliza el volante para evitar que sobrevire hacia atrás.
+  3. **Incentivos en la Función de Recompensa:**
+     - `wall_stuck_step_penalty = -14.0` (escalado $2.2\times$): castiga permanecer pegado al muro.
+     - `reverse_escape_reward = +4.5`: bonifica retroceder en línea recta para despejar el parachoques.
 
 ---
 

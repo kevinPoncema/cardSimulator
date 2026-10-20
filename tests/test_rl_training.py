@@ -296,9 +296,11 @@ def test_wall_stuck_penalty_and_reverse_escape_behavior() -> None:
     )
     assert bd_esc.get("reverse_escape_bonus", 0.0) == cfg.reverse_escape_reward
 
-    # Verifica que MLPPolicy active reversa cuando d_0 indica bloqueo frontal inminente
+    # Verifica que MLPPolicy active reversa en línea recta cuando d_0 indica bloqueo frontal inminente
     policy = MLPPolicy.create_warm_start()
     blocked_obs = np.array([0.05, 0.85, 0.20, 0.90, 0.25, 0.02, 0.0], dtype=np.float32)
     escape_action = policy.predict_car_action(blocked_obs)
     assert escape_action.brake > 0.5
     assert escape_action.throttle == 0.0
+    # Al retroceder, el volante se mantiene recto (0.0) para no rotar el coche hacia atrás ni dar media vuelta
+    assert escape_action.steer == 0.0

@@ -73,7 +73,10 @@ class RLAgentController(IInputController):
         if check_wrong_way is not None and check_wrong_way(self.car_id):
             return self.policy.turnaround_action(obs)
 
-        return self.policy.predict_car_action(obs)
+        alignment_fn = getattr(self.telemetry_provider, "get_heading_alignment", None)
+        alignment = alignment_fn(self.car_id) if alignment_fn is not None else 1.0
+
+        return self.policy.predict_car_action(obs, heading_alignment=alignment)
 
     def poll_debug_toggle(self) -> bool:
         self._process_events()
