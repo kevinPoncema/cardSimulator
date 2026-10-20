@@ -188,6 +188,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--num-cars",
+        "--cars",
+        dest="num_cars",
         type=int,
         default=1,
         help="Número total de coches simultáneos en la simulación (por defecto: 1).",
