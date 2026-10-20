@@ -1,0 +1,80 @@
+{
+  "name": "3. Pocket Chicane Circuit (Peque\u00f1o)",
+  "description": "Trazado t\u00e9cnico corto en 'S' con conos marcando el v\u00e9rtice de la chicane.",
+  "category": "small",
+  "width": 1800.0,
+  "height": 1300.0,
+  "asphalt_half_width": 95.0,
+  "kerb_width": 15.0,
+  "wall_half_width": 140.0,
+  "subdivisions_per_segment": 10,
+  "start_index": 8,
+  "control_points": [
+    [
+      550.0,
+      1050.0
+    ],
+    [
+      1100.0,
+      1050.0
+    ],
+    [
+      1520.0,
+      880.0
+    ],
+    [
+      1350.0,
+      520.0
+    ],
+    [
+      900.0,
+      750.0
+    ],
+    [
+      680.0,
+      420.0
+    ],
+    [
+      1050.0,
+      250.0
+    ],
+    [
+      550.0,
+      250.0
+    ],
+    [
+      280.0,
+      650.0
+    ]
+  ],
+  "obstacles": [
+    {
+      "id": "pk_cone_1",
+      "kind": "cone",
+      "x": 900.0,
+      "y": 720.0,
+      "radius": 12.0
+    },
+    {
+      "id": "pk_cone_2",
+      "kind": "cone",
+      "x": 900.0,
+      "y": 780.0,
+      "radius": 12.0
+    },
+    {
+      "id": "pk_pothole_1",
+      "kind": "pothole",
+      "x": 1350.0,
+      "y": 520.0,
+      "radius": 38.0
+    },
+    {
+      "id": "pk_oil_1",
+      "kind": "oil_slick",
+      "x": 680.0,
+      "y": 420.0,
+      "radius": 34.0
+    }
+  ]
+}

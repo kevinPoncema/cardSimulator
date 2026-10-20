@@ -1,4 +1,4 @@
-"""Controlador de teclado humano usando eventos de Pygame-CE."""
+"""Controlador de teclado humano usando eventos de Pygame-CE con soporte para 12 mapas."""
 
 from __future__ import annotations
 
@@ -7,9 +7,24 @@ import pygame
 from src.domain.interfaces.input_controller import IInputController
 from src.domain.value_objects.car_action import CarAction
 
+KEY_TO_MAP: dict[int, str] = {
+    pygame.K_1: "kart_classic",
+    pygame.K_2: "oval_arena",
+    pygame.K_3: "pocket_chicane",
+    pygame.K_4: "retro_grand_prix",
+    pygame.K_5: "neon_speedway",
+    pygame.K_6: "canyon_drift",
+    pygame.K_7: "starlight_loop",
+    pygame.K_8: "desert_dunes",
+    pygame.K_9: "dockyard_sprint",
+    pygame.K_0: "megaring_international",
+    pygame.K_MINUS: "volcano_ridge",
+    pygame.K_EQUALS: "monaco_night",
+}
+
 
 class HumanKeyboardController(IInputController):
-    """Lee el estado del teclado (WASD/Flechas, Espacio, F3, 1-4/M para mapas, R para reiniciar)."""
+    """Lee el teclado (WASD/Flechas, Espacio, F3, M/N y teclas 1-12 para mapas, R para reset)."""
 
     def __init__(self) -> None:
         self._quit_requested: bool = False
@@ -31,14 +46,10 @@ class HumanKeyboardController(IInputController):
                     self._debug_toggle_requested = True
                 elif event.key == pygame.K_m:
                     self._map_selection_requested = "next"
-                elif event.key == pygame.K_1:
-                    self._map_selection_requested = "retro_grand_prix"
-                elif event.key == pygame.K_2:
-                    self._map_selection_requested = "neon_speedway"
-                elif event.key == pygame.K_3:
-                    self._map_selection_requested = "canyon_drift"
-                elif event.key == pygame.K_4:
-                    self._map_selection_requested = "starlight_loop"
+                elif event.key == pygame.K_n:
+                    self._map_selection_requested = "prev"
+                elif event.key in KEY_TO_MAP:
+                    self._map_selection_requested = KEY_TO_MAP[event.key]
                 elif event.key == pygame.K_r:
                     self._reset_car_requested = True
 
@@ -76,7 +87,7 @@ class HumanKeyboardController(IInputController):
         return toggled
 
     def poll_map_selection(self) -> str | None:
-        """Consume y retorna la solicitud de cambio de mapa (M o teclas 1-4)."""
+        """Consume y retorna la solicitud de cambio de mapa (M/N o teclas 1-0,-,=)."""
         self._process_events()
         selected = self._map_selection_requested
         self._map_selection_requested = None

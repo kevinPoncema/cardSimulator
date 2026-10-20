@@ -1,0 +1,76 @@
+{
+  "name": "2. Thunder Oval Arena (Peque\u00f1o)",
+  "description": "\u00d3valo de velocidad pura y compacta con baches traicioneros en el interior.",
+  "category": "small",
+  "width": 1600.0,
+  "height": 1100.0,
+  "asphalt_half_width": 100.0,
+  "kerb_width": 16.0,
+  "wall_half_width": 145.0,
+  "subdivisions_per_segment": 10,
+  "start_index": 8,
+  "control_points": [
+    [
+      550.0,
+      880.0
+    ],
+    [
+      1050.0,
+      880.0
+    ],
+    [
+      1380.0,
+      720.0
+    ],
+    [
+      1380.0,
+      380.0
+    ],
+    [
+      1050.0,
+      220.0
+    ],
+    [
+      550.0,
+      220.0
+    ],
+    [
+      220.0,
+      380.0
+    ],
+    [
+      220.0,
+      720.0
+    ]
+  ],
+  "obstacles": [
+    {
+      "id": "ov_pothole_1",
+      "kind": "pothole",
+      "x": 800.0,
+      "y": 860.0,
+      "radius": 40.0
+    },
+    {
+      "id": "ov_oil_1",
+      "kind": "oil_slick",
+      "x": 1350.0,
+      "y": 550.0,
+      "radius": 35.0
+    },
+    {
+      "id": "ov_cone_1",
+      "kind": "cone",
+      "x": 1050.0,
+      "y": 240.0,
+      "radius": 12.0
+    },
+    {
+      "id": "ov_cone_2",
+      "kind": "cone",
+      "x": 1070.0,
+      "y": 200.0,
+      "radius": 12.0
+    }
+  ]
+}

@@ -113,8 +113,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--map",
         choices=list(PRESET_MAPS.keys()),
-        default="retro_grand_prix",
-        help="Circuito inicial (retro_grand_prix, neon_speedway, canyon_drift, starlight_loop).",
+        default="kart_classic",
+        help="Circuito inicial (12 disponibles: kart_classic, oval_arena, megaring_international, etc.).",
     )
     parser.add_argument(
         "--color",

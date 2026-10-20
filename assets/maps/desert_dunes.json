@@ -1,0 +1,88 @@
+{
+  "name": "8. Desert Dunes Ring (Mediano)",
+  "description": "Trazado \u00e1rido con curvas prolongadas y baches gigantes en la zona sur.",
+  "category": "medium",
+  "width": 2800.0,
+  "height": 1900.0,
+  "asphalt_half_width": 115.0,
+  "kerb_width": 18.0,
+  "wall_half_width": 165.0,
+  "subdivisions_per_segment": 12,
+  "start_index": 12,
+  "control_points": [
+    [
+      750.0,
+      1550.0
+    ],
+    [
+      1400.0,
+      1580.0
+    ],
+    [
+      2100.0,
+      1520.0
+    ],
+    [
+      2480.0,
+      1200.0
+    ],
+    [
+      2450.0,
+      650.0
+    ],
+    [
+      2050.0,
+      350.0
+    ],
+    [
+      1550.0,
+      550.0
+    ],
+    [
+      1150.0,
+      350.0
+    ],
+    [
+      650.0,
+      400.0
+    ],
+    [
+      350.0,
+      780.0
+    ],
+    [
+      350.0,
+      1250.0
+    ]
+  ],
+  "obstacles": [
+    {
+      "id": "dd_pothole_1",
+      "kind": "pothole",
+      "x": 1400.0,
+      "y": 1580.0,
+      "radius": 46.0
+    },
+    {
+      "id": "dd_pothole_2",
+      "kind": "pothole",
+      "x": 2480.0,
+      "y": 1200.0,
+      "radius": 44.0
+    },
+    {
+      "id": "dd_cone_1",
+      "kind": "cone",
+      "x": 1550.0,
+      "y": 550.0,
+      "radius": 12.0
+    },
+    {
+      "id": "dd_oil_1",
+      "kind": "oil_slick",
+      "x": 650.0,
+      "y": 400.0,
+      "radius": 36.0
+    }
+  ]
+}

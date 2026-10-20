@@ -1,0 +1,76 @@
+{
+  "name": "1. Mini Karting Classic (Peque\u00f1o)",
+  "description": "Circuito ratonero y compacto con curvas cerradas, baches y conos.",
+  "category": "small",
+  "width": 1600.0,
+  "height": 1200.0,
+  "asphalt_half_width": 90.0,
+  "kerb_width": 15.0,
+  "wall_half_width": 135.0,
+  "subdivisions_per_segment": 10,
+  "start_index": 8,
+  "control_points": [
+    [
+      500.0,
+      950.0
+    ],
+    [
+      900.0,
+      950.0
+    ],
+    [
+      1300.0,
+      850.0
+    ],
+    [
+      1320.0,
+      450.0
+    ],
+    [
+      950.0,
+      300.0
+    ],
+    [
+      680.0,
+      520.0
+    ],
+    [
+      450.0,
+      320.0
+    ],
+    [
+      280.0,
+      600.0
+    ]
+  ],
+  "obstacles": [
+    {
+      "id": "k_cone_1",
+      "kind": "cone",
+      "x": 680.0,
+      "y": 480.0,
+      "radius": 12.0
+    },
+    {
+      "id": "k_cone_2",
+      "kind": "cone",
+      "x": 700.0,
+      "y": 550.0,
+      "radius": 12.0
+    },
+    {
+      "id": "k_pothole_1",
+      "kind": "pothole",
+      "x": 1300.0,
+      "y": 650.0,
+      "radius": 36.0
+    },
+    {
+      "id": "k_oil_1",
+      "kind": "oil_slick",
+      "x": 950.0,
+      "y": 300.0,
+      "radius": 32.0
+    }
+  ]
+}

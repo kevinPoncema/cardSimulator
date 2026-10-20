@@ -53,19 +53,33 @@ pip install -r requirements.txt
 .venv/bin/python3 src/main.py
 ```
 
-### Selección de Mapas y Opciones CLI
-El simulador incluye **4 circuitos gigantes** ($3200 \times 2200\text{ px}$ a $3400 \times 2400\text{ px}$) con cámara de seguimiento y minimapa en vivo:
-- `retro_grand_prix` (Tecla `1`): **Retro Grand Prix** (Clásico amplio equilibrado).
-- `neon_speedway` (Tecla `2`): **Super Oval & Chicane Speedway** (Alta velocidad).
-- `canyon_drift` (Tecla `3`): **Canyon Drift Circuit** (Curvas enlazadas en S para derrapar).
-- `starlight_loop` (Tecla `4`): **Starlight Grand Loop** (Trébol panorámico).
+### Selección de Mapas y Catálogo de 12 Circuitos
+El simulador incluye **12 circuitos variados organizados en 3 categorías** con obstáculos (conos dinámicos, barreras, baches gigantes y manchas de aceite):
+
+- **3 Pequeños:**
+  - `kart_classic` (`1`): **Mini Karting Classic** ($1600 \times 1200\text{ px}$)
+  - `oval_arena` (`2`): **Thunder Oval Arena** ($1600 \times 1100\text{ px}$)
+  - `pocket_chicane` (`3`): **Pocket Chicane Circuit** ($1800 \times 1300\text{ px}$)
+- **6 Medianos:**
+  - `retro_grand_prix` (`4`): **Retro GP Classic** ($2600 \times 1800\text{ px}$)
+  - `neon_speedway` (`5`): **Neon Speedway** ($2800 \times 1800\text{ px}$)
+  - `canyon_drift` (`6`): **Canyon Drift Circuit** ($2800 \times 2000\text{ px}$)
+  - `starlight_loop` (`7`): **Starlight Grand Loop** ($2600 \times 2000\text{ px}$)
+  - `desert_dunes` (`8`): **Desert Dunes Ring** ($2800 \times 1900\text{ px}$)
+  - `dockyard_sprint` (`9`): **Dockyard Industrial** ($2700 \times 1900\text{ px}$)
+- **3 Grandes:**
+  - `megaring_international` (`0`): **MegaRing International GP** ($3600 \times 2500\text{ px}$)
+  - `volcano_ridge` (`-`): **Volcano Ridge Expressway** ($3800 \times 2600\text{ px}$)
+  - `monaco_night` (`=`): **Monaco Night Grand Prix** ($3500 \times 2500\text{ px}$)
+
+*(Puedes cambiar de mapa en cualquier momento con las teclas directas `1-9, 0, -, =` o con `M` / `N`).*
 
 ```bash
 # Iniciar directamente en un mapa y color específicos
-.venv/bin/python3 src/main.py --map canyon_drift --color electric_blue
+.venv/bin/python3 src/main.py --map kart_classic --color electric_blue
 
-# Iniciar con el piloto autónomo guiado por LIDAR
-.venv/bin/python3 src/main.py --map neon_speedway --controller dummy_ai
+# Iniciar en un circuito gigante GP
+.venv/bin/python3 src/main.py --map megaring_international
 ```
 
 ### Controles en Carrera
@@ -75,9 +89,10 @@ El simulador incluye **4 circuitos gigantes** ($3200 \times 2200\text{ px}$ a $3
 | `S` / `Flecha Abajo` | Frenar / Reversa |
 | `A` / `Flecha Izquierda` | Girar a la izquierda |
 | `D` / `Flecha Derecha` | Girar a la derecha |
-| `Espacio` | **Freno de mano / Modo Derrape** (derrape arcade controlado) |
-| `1`, `2`, `3`, `4` o `M` | **Cambiar de circuito en tiempo real** |
-| `R` | **Reiniciar posición del coche** en la línea de salida |
+| `Espacio` | **Freno de mano / Modo Derrape** |
+| `M` / `N` | **Mapa siguiente / Mapa anterior** |
+| `1` a `9`, `0`, `-`, `=` | **Selección directa de los 12 mapas** |
+| `R` | **Reiniciar posición del coche y obstáculos** |
 | `F3` | Alternar el **Modo de Depuración Visual LIDAR** y **HUD del Vector $S$** |
 | `ESC` | Salir del simulador |
 

@@ -58,6 +58,9 @@ class RaceOrchestrator:
         if map_key_or_next == "next":
             idx = keys.index(self.current_map_key) if self.current_map_key in keys else 0
             target_key = keys[(idx + 1) % len(keys)]
+        elif map_key_or_next == "prev":
+            idx = keys.index(self.current_map_key) if self.current_map_key in keys else 0
+            target_key = keys[(idx - 1) % len(keys)]
         elif map_key_or_next in self.available_tracks:
             target_key = map_key_or_next
         else:
@@ -70,7 +73,8 @@ class RaceOrchestrator:
         self.reset_all_cars()
 
     def reset_all_cars(self) -> None:
-        """Reposiciona todos los coches registrados en la salida del mapa actual y reinicia la vuelta en curso."""
+        """Reposiciona todos los coches y restaura los obstáculos físicos."""
+        self.physics_engine.reset_obstacles()
         for car in self.cars:
             car.reset_lap_progress(reset_score=False)
             self.physics_engine.reset_car_pose(
@@ -135,6 +139,7 @@ class RaceOrchestrator:
     def render_frame(self, fps: float = 60.0) -> None:
         """Delega el dibujado del estado actual al IRenderer si está configurado."""
         if self.renderer is not None:
+            dyn_obs = self.physics_engine.get_physical_obstacles_state()
             self.renderer.render(
                 track=self.track,
                 cars=self.cars,
@@ -142,6 +147,7 @@ class RaceOrchestrator:
                 observations=self.telemetry.all_observations,
                 debug_mode=self.debug_mode,
                 fps=fps,
+                dynamic_obstacles=dyn_obs,
             )
 
     def get_observation(self, car_id: str | None = None) -> np.ndarray:

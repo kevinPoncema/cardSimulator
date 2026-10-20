@@ -1,0 +1,97 @@
+{
+  "name": "9. Dockyard Industrial Sprint (Mediano)",
+  "description": "Zonas industriales de 90\u00b0 entre barreras de hormig\u00f3n y manchas de aceite.",
+  "category": "medium",
+  "width": 2700.0,
+  "height": 1900.0,
+  "asphalt_half_width": 105.0,
+  "kerb_width": 16.0,
+  "wall_half_width": 150.0,
+  "subdivisions_per_segment": 12,
+  "start_index": 12,
+  "control_points": [
+    [
+      700.0,
+      1550.0
+    ],
+    [
+      1350.0,
+      1550.0
+    ],
+    [
+      2150.0,
+      1550.0
+    ],
+    [
+      2380.0,
+      1150.0
+    ],
+    [
+      2050.0,
+      850.0
+    ],
+    [
+      2380.0,
+      450.0
+    ],
+    [
+      1650.0,
+      320.0
+    ],
+    [
+      1300.0,
+      700.0
+    ],
+    [
+      750.0,
+      350.0
+    ],
+    [
+      350.0,
+      680.0
+    ],
+    [
+      400.0,
+      1250.0
+    ]
+  ],
+  "obstacles": [
+    {
+      "id": "dy_barrier_1",
+      "kind": "barrier",
+      "x": 2050.0,
+      "y": 850.0,
+      "width": 45.0,
+      "height": 18.0,
+      "angle_deg": 45.0
+    },
+    {
+      "id": "dy_oil_1",
+      "kind": "oil_slick",
+      "x": 1300.0,
+      "y": 700.0,
+      "radius": 42.0
+    },
+    {
+      "id": "dy_pothole_1",
+      "kind": "pothole",
+      "x": 750.0,
+      "y": 350.0,
+      "radius": 40.0
+    },
+    {
+      "id": "dy_cone_1",
+      "kind": "cone",
+      "x": 1350.0,
+      "y": 1530.0,
+      "radius": 12.0
+    },
+    {
+      "id": "dy_cone_2",
+      "kind": "cone",
+      "x": 1350.0,
+      "y": 1570.0,
+      "radius": 12.0
+    }
+  ]
+}

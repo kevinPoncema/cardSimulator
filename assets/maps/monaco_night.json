@@ -1,0 +1,112 @@
+{
+  "name": "12. Monaco Night Grand Prix (Grande)",
+  "description": "Trazado nocturno t\u00e9cnico y sinuoso con chicane estrecha, pianos dobles y aceite.",
+  "category": "large",
+  "width": 3500.0,
+  "height": 2500.0,
+  "asphalt_half_width": 115.0,
+  "kerb_width": 18.0,
+  "wall_half_width": 165.0,
+  "subdivisions_per_segment": 12,
+  "start_index": 12,
+  "control_points": [
+    [
+      950.0,
+      2050.0
+    ],
+    [
+      1800.0,
+      2080.0
+    ],
+    [
+      2750.0,
+      2000.0
+    ],
+    [
+      3200.0,
+      1620.0
+    ],
+    [
+      2800.0,
+      1150.0
+    ],
+    [
+      3200.0,
+      680.0
+    ],
+    [
+      2600.0,
+      420.0
+    ],
+    [
+      1900.0,
+      750.0
+    ],
+    [
+      1350.0,
+      420.0
+    ],
+    [
+      580.0,
+      580.0
+    ],
+    [
+      500.0,
+      1200.0
+    ],
+    [
+      850.0,
+      1600.0
+    ],
+    [
+      500.0,
+      1950.0
+    ]
+  ],
+  "obstacles": [
+    {
+      "id": "mn_oil_1",
+      "kind": "oil_slick",
+      "x": 2800.0,
+      "y": 1150.0,
+      "radius": 45.0
+    },
+    {
+      "id": "mn_oil_2",
+      "kind": "oil_slick",
+      "x": 1900.0,
+      "y": 750.0,
+      "radius": 42.0
+    },
+    {
+      "id": "mn_pothole_1",
+      "kind": "pothole",
+      "x": 850.0,
+      "y": 1600.0,
+      "radius": 46.0
+    },
+    {
+      "id": "mn_cone_1",
+      "kind": "cone",
+      "x": 2600.0,
+      "y": 420.0,
+      "radius": 12.0
+    },
+    {
+      "id": "mn_cone_2",
+      "kind": "cone",
+      "x": 2620.0,
+      "y": 460.0,
+      "radius": 12.0
+    },
+    {
+      "id": "mn_barrier_1",
+      "kind": "barrier",
+      "x": 1350.0,
+      "y": 420.0,
+      "width": 48.0,
+      "height": 18.0,
+      "angle_deg": -30.0
+    }
+  ]
+}

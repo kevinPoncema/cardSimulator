@@ -1,0 +1,108 @@
+{
+  "name": "11. Volcano Ridge Expressway (Grande)",
+  "description": "Circuito colosal de velocidad punta extrema con zonas de desprendimiento.",
+  "category": "large",
+  "width": 3800.0,
+  "height": 2600.0,
+  "asphalt_half_width": 125.0,
+  "kerb_width": 20.0,
+  "wall_half_width": 180.0,
+  "subdivisions_per_segment": 12,
+  "start_index": 12,
+  "control_points": [
+    [
+      1050.0,
+      2150.0
+    ],
+    [
+      1950.0,
+      2180.0
+    ],
+    [
+      2950.0,
+      2120.0
+    ],
+    [
+      3450.0,
+      1680.0
+    ],
+    [
+      3420.0,
+      920.0
+    ],
+    [
+      2900.0,
+      480.0
+    ],
+    [
+      2150.0,
+      450.0
+    ],
+    [
+      1850.0,
+      720.0
+    ],
+    [
+      1500.0,
+      450.0
+    ],
+    [
+      850.0,
+      500.0
+    ],
+    [
+      480.0,
+      980.0
+    ],
+    [
+      500.0,
+      1680.0
+    ]
+  ],
+  "obstacles": [
+    {
+      "id": "vr_pothole_1",
+      "kind": "pothole",
+      "x": 1950.0,
+      "y": 2180.0,
+      "radius": 50.0
+    },
+    {
+      "id": "vr_pothole_2",
+      "kind": "pothole",
+      "x": 3450.0,
+      "y": 1680.0,
+      "radius": 48.0
+    },
+    {
+      "id": "vr_oil_1",
+      "kind": "oil_slick",
+      "x": 1850.0,
+      "y": 720.0,
+      "radius": 46.0
+    },
+    {
+      "id": "vr_cone_1",
+      "kind": "cone",
+      "x": 2900.0,
+      "y": 480.0,
+      "radius": 12.0
+    },
+    {
+      "id": "vr_cone_2",
+      "kind": "cone",
+      "x": 2920.0,
+      "y": 520.0,
+      "radius": 12.0
+    },
+    {
+      "id": "vr_barrier_1",
+      "kind": "barrier",
+      "x": 850.0,
+      "y": 500.0,
+      "width": 52.0,
+      "height": 20.0,
+      "angle_deg": 10.0
+    }
+  ]
+}

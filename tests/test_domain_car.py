@@ -144,19 +144,66 @@ def test_arcade_steering_stops_immediately_when_released() -> None:
     assert math.isclose(car.angular_velocity, 0.0, abs_tol=1e-6)
 
 
-def test_all_four_large_maps_load_correctly() -> None:
-    """Verifica que los 4 circuitos de gran escala carguen con dimensiones >= 3200x2200."""
-    expected_keys = ["retro_grand_prix", "neon_speedway", "canyon_drift", "starlight_loop"]
-    assert Track.available_map_keys() == expected_keys
+def test_all_twelve_maps_load_correctly() -> None:
+    """Verifica que los 12 circuitos (3 pequeños, 6 medianos, 3 grandes) carguen correctamente."""
+    all_keys = Track.available_map_keys()
+    assert len(all_keys) == 12
 
-    for key in expected_keys:
+    for key in all_keys:
         track = Track.create_default_circuit(key)
-        assert track.width >= 3200.0
-        assert track.height >= 2200.0
-        assert track.asphalt_half_width >= 115.0
-        assert len(track.all_wall_segments()) > 100
+        assert track.width >= 1600.0
+        assert track.height >= 1100.0
+        assert track.asphalt_half_width >= 80.0
+        assert len(track.all_wall_segments()) > 40
         assert len(track.gates) == 4
+        assert track.category in ("small", "medium", "large")
         assert track.get_surface_at(track.start_position).name == "asphalt"
+
+
+def test_terrain_obstacles_affect_surface_properties() -> None:
+    """Verifica que baches y manchas de aceite modifiquen la superficie según las coordenadas."""
+    track = Track.create_default_circuit("kart_classic")
+    # Buscar el bache y el charco de aceite en kart_classic
+    pothole_obs = next(o for o in track.obstacles if o.kind.value == "pothole")
+    oil_obs = next(o for o in track.obstacles if o.kind.value == "oil_slick")
+
+    # Sobre el bache: superficie 'pothole' con arrastre elevado
+    pothole_surf = track.get_surface_at(pothole_obs.position)
+    assert pothole_surf.name == "pothole"
+    assert pothole_surf.drag_multiplier > 4.0
+
+    # Sobre el aceite: superficie 'oil' con agarre lateral mínimo
+    oil_surf = track.get_surface_at(oil_obs.position)
+    assert oil_surf.name == "oil"
+    assert oil_surf.lateral_grip_multiplier < 0.20
+
+
+def test_physical_obstacles_are_detected_by_lidar() -> None:
+    """Verifica que los conos físicos sean detectados por las consultas de rayo LIDAR."""
+    track = Track.create_default_circuit("kart_classic")
+    engine = PymunkPhysicsEngine()
+    engine.register_track(track)
+
+    cone_obs = next(o for o in track.obstacles if o.kind.value == "cone")
+    # Colocar el coche mirando directamente al cono a 80 px de distancia
+    # Frente del coche estará a ~57 px del cono
+    car = Car(
+        car_id="cone_tester",
+        position=Vector2D(cone_obs.position.x - 80.0, cone_obs.position.y),
+        angle=Angle.from_degrees(0.0),
+        config=CarConfig(length=46.0),
+    )
+    engine.register_car(car)
+
+    from src.infrastructure.sensors.lidar_sensor_2d import LidarSensor2D
+    sensor = LidarSensor2D(engine, max_range=300.0)
+    reading = sensor.scan(car)
+
+    d0_ray = reading.get_ray_by_id("d_0")
+    assert d0_ray.hit is True
+    # Frente del coche en (x-80 + 23 = x-57). El cono está en x con radio 12, impacto en x - 12 (dist ~45-58 px)
+    assert d0_ray.distance < 70.0
+
 
 
 def test_valid_full_lap_increments_score_by_one() -> None:

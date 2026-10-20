@@ -29,3 +29,11 @@ class IPhysicsEngine(ABC):
 
     def reset_car_pose(self, car_id: str, position: Vector2D, angle: Angle) -> None:
         """Reposiciona un vehículo en la pista con velocidad cero."""
+
+    def reset_obstacles(self) -> None:
+        """Restaura los obstáculos físicos a sus posiciones originales."""
+
+    def get_physical_obstacles_state(self) -> list:
+        """Retorna las posiciones actuales de los obstáculos físicos para renderizado."""
+        return []
+

@@ -32,34 +32,74 @@ Para cada vértice $\vec{C}_i$ de la línea central suavizada:
    - **Anillo de Muros Físicos** ($d = \text{wall\_half\_width}$, ej. $165\text{ px}$), convertido en segmentos `TrackSegment` registrados como `pymunk.Segment` estáticos en Pymunk.
    - El espacio comprendido entre el piano y el muro constituye la escapatoria de **Césped (`grass`)**.
 
-### 1.3 Catálogo de Mapas Incluidos (`assets/maps/`)
-| Clave (`--map`) | Tecla Rápida | Nombre | Dimensiones del Mundo | Estilo |
-| :--- | :---: | :--- | :---: | :--- |
-| `retro_grand_prix` | `1` | **Retro Grand Prix** | $3200 \times 2200\text{ px}$ | Clásico amplio con rectas largas y chicane suave |
-| `neon_speedway` | `2` | **Super Oval & Chicane Speedway** | $3400 \times 2200\text{ px}$ | Anillo de máxima velocidad con calzada extra ancha ($260\text{ px}$) |
-| `canyon_drift` | `3` | **Canyon Drift Circuit** | $3400 \times 2400\text{ px}$ | Curvas enlazadas en "S" ideal para derrapar con `Espacio` |
-| `starlight_loop` | `4` | **Starlight Grand Loop** | $3200 \times 2400\text{ px}$ | Circuito en forma de trébol con rectas diagonales rápidas |
+### 1.3 Catálogo de 12 Circuitos Incluidos (`assets/maps/`)
 
-### 1.4 Cómo Crear un Nuevo Mapa Personalizado (JSON)
+El juego incluye **12 circuitos organizados por escala y dificultad**:
+
+#### 3 Circuitos Pequeños (Compactos y de alta intensidad)
+| Clave (`--map`) | Tecla Rápida | Nombre | Dimensiones | Estilo y Obstáculos |
+| :--- | :---: | :--- | :---: | :--- |
+| `kart_classic` | `1` | **Mini Karting Classic** | $1600 \times 1200\text{ px}$ | Ratonero con curvas cerradas, bache en curva este y conos. |
+| `oval_arena` | `2` | **Thunder Oval Arena** | $1600 \times 1100\text{ px}$ | Óvalo puro de alta velocidad con baches y aceite en el carril interior. |
+| `pocket_chicane` | `3` | **Pocket Chicane Circuit** | $1800 \times 1300\text{ px}$ | Enlace rápido en 'S' con conos marcando el vértice. |
+
+#### 6 Circuitos Medianos (Equilibrados y técnicos)
+| Clave (`--map`) | Tecla Rápida | Nombre | Dimensiones | Estilo y Obstáculos |
+| :--- | :---: | :--- | :---: | :--- |
+| `retro_grand_prix` | `4` | **Retro GP Classic** | $2600 \times 1800\text{ px}$ | Trazado clásico con curvas medias, bache en frenada y barrera. |
+| `neon_speedway` | `5` | **Neon Speedway** | $2800 \times 1800\text{ px}$ | Anillo con chicane central repleta de conos. |
+| `canyon_drift` | `6` | **Canyon Drift Circuit** | $2800 \times 2000\text{ px}$ | Curvas enlazadas en S para derrapar sobre asfalto y aceite. |
+| `starlight_loop` | `7` | **Starlight Grand Loop** | $2600 \times 2000\text{ px}$ | Trébol panorámico con zonas rotas y barreras en vértices. |
+| `desert_dunes` | `8` | **Desert Dunes Ring** | $2800 \times 1900\text{ px}$ | Curvas prolongadas con baches gigantescos en la zona sur. |
+| `dockyard_sprint` | `9` | **Dockyard Industrial** | $2700 \times 1900\text{ px}$ | Curvas de 90° entre barreras de hormigón y manchas de aceite. |
+
+#### 3 Circuitos Grandes (Monstruos de alta velocidad y resistencia GP)
+| Clave (`--map`) | Tecla Rápida | Nombre | Dimensiones | Estilo y Obstáculos |
+| :--- | :---: | :--- | :---: | :--- |
+| `megaring_international` | `0` | **MegaRing International GP** | $3600 \times 2500\text{ px}$ | Gran Premio masivo con múltiples sectores y zonas de peligro. |
+| `volcano_ridge` | `-` | **Volcano Ridge Expressway** | $3800 \times 2600\text{ px}$ | Velocidad punta extrema con baches profundos y conos de derrumbe. |
+| `monaco_night` | `=` | **Monaco Night Grand Prix** | $3500 \times 2500\text{ px}$ | Trazado nocturno técnico con chicanes estrechas, pianos dobles y aceite. |
+
+*(Nota: En cualquier momento puedes ciclar entre todos los mapas con las teclas `M` (siguiente) y `N` (anterior)).*
+
+### 1.4 Sistema de Obstáculos Interactivos
+
+Cada pista incorpora una lista de obstáculos en su definición (`obstacles: [...]`):
+
+1. **Obstáculos Físicos (Detectables por LIDAR y Colisión Pymunk):**
+   - **Conos de tráfico (`cone`):** Cuerpos circulares dinámicos naranjas. Al impactarlos a velocidad, el coche los golpea y los desplaza por la pista.
+   - **Barreras rígidas (`barrier`):** Bloques estáticos con franjas diagonales rojas y blancas. Obligan a esquivar o frenar antes de colisionar.
+2. **Peligros de Terreno (Superficies especiales):**
+   - **Baches gigantes (`pothole`):** Cráteres oscuros en el asfalto. Al pisarlos, la resistencia al avance aumenta drásticamente (`drag_multiplier = 5.2`) y la tracción cae a `0.35`.
+   - **Manchas de aceite (`oil_slick`):** Charcos iridiscentes que reducen el agarre lateral a `0.12`, provocando derrapes involuntarios y trompos si entras a gran velocidad.
+
+### 1.5 Cómo Crear un Nuevo Mapa Personalizado con Obstáculos (JSON)
 Cualquier archivo `.json` en `assets/maps/` sigue esta estructura:
 ```json
 {
   "name": "Mi Circuito Personalizado",
   "description": "Descripción breve del trazado.",
-  "width": 3400.0,
-  "height": 2400.0,
-  "asphalt_half_width": 120.0,
+  "category": "medium",
+  "width": 2800.0,
+  "height": 2000.0,
+  "asphalt_half_width": 115.0,
   "kerb_width": 18.0,
-  "wall_half_width": 175.0,
+  "wall_half_width": 165.0,
   "subdivisions_per_segment": 12,
   "start_index": 12,
   "control_points": [
-    [900.0, 1800.0],
-    [2400.0, 1800.0],
-    [2800.0, 1100.0],
-    [2400.0, 450.0],
-    [900.0, 450.0],
-    [450.0, 1100.0]
+    [700.0, 1600.0],
+    [2100.0, 1600.0],
+    [2400.0, 1000.0],
+    [1900.0, 450.0],
+    [800.0, 450.0],
+    [400.0, 1000.0]
+  ],
+  "obstacles": [
+    {"id": "obs_cone_1", "kind": "cone", "x": 1200.0, "y": 1600.0, "radius": 12.0},
+    {"id": "obs_pothole_1", "kind": "pothole", "x": 1900.0, "y": 450.0, "radius": 44.0},
+    {"id": "obs_oil_1", "kind": "oil_slick", "x": 800.0, "y": 450.0, "radius": 40.0},
+    {"id": "obs_bar_1", "kind": "barrier", "x": 2400.0, "y": 1000.0, "width": 48.0, "height": 18.0, "angle_deg": 30.0}
   ]
 }
 ```

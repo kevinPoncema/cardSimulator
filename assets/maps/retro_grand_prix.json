@@ -1,25 +1,101 @@
 {
-  "name": "1. Retro Grand Prix (Clásico Amplio)",
-  "description": "Circuito equilibrado de gran escala con rectas largas y curvas suaves.",
-  "width": 3200.0,
-  "height": 2200.0,
-  "asphalt_half_width": 115.0,
+  "name": "4. Retro Grand Prix Classic (Mediano)",
+  "description": "El trazado equilibrado con curvas medias y baches en la frenada.",
+  "category": "medium",
+  "width": 2600.0,
+  "height": 1800.0,
+  "asphalt_half_width": 110.0,
   "kerb_width": 18.0,
-  "wall_half_width": 165.0,
+  "wall_half_width": 160.0,
   "subdivisions_per_segment": 12,
   "start_index": 12,
   "control_points": [
-    [950.0, 1800.0],
-    [1600.0, 1800.0],
-    [2350.0, 1780.0],
-    [2800.0, 1480.0],
-    [2780.0, 820.0],
-    [2400.0, 420.0],
-    [1820.0, 460.0],
-    [1480.0, 720.0],
-    [1050.0, 430.0],
-    [480.0, 560.0],
-    [420.0, 1200.0],
-    [580.0, 1680.0]
+    [
+      800.0,
+      1500.0
+    ],
+    [
+      1400.0,
+      1500.0
+    ],
+    [
+      2050.0,
+      1480.0
+    ],
+    [
+      2350.0,
+      1200.0
+    ],
+    [
+      2300.0,
+      680.0
+    ],
+    [
+      1950.0,
+      350.0
+    ],
+    [
+      1500.0,
+      420.0
+    ],
+    [
+      1220.0,
+      680.0
+    ],
+    [
+      850.0,
+      360.0
+    ],
+    [
+      400.0,
+      480.0
+    ],
+    [
+      350.0,
+      1000.0
+    ],
+    [
+      480.0,
+      1400.0
+    ]
+  ],
+  "obstacles": [
+    {
+      "id": "rgp_pothole_1",
+      "kind": "pothole",
+      "x": 2350.0,
+      "y": 1200.0,
+      "radius": 42.0
+    },
+    {
+      "id": "rgp_oil_1",
+      "kind": "oil_slick",
+      "x": 1220.0,
+      "y": 680.0,
+      "radius": 38.0
+    },
+    {
+      "id": "rgp_cone_1",
+      "kind": "cone",
+      "x": 1500.0,
+      "y": 390.0,
+      "radius": 12.0
+    },
+    {
+      "id": "rgp_cone_2",
+      "kind": "cone",
+      "x": 1500.0,
+      "y": 450.0,
+      "radius": 12.0
+    },
+    {
+      "id": "rgp_barrier_1",
+      "kind": "barrier",
+      "x": 400.0,
+      "y": 480.0,
+      "width": 42.0,
+      "height": 16.0,
+      "angle_deg": 30.0
+    }
   ]
 }
