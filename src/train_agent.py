@@ -21,11 +21,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         description="Entrenamiento local de la Red Neuronal RL para conducción y esquiva de obstáculos."
     )
     parser.add_argument(
+        "--all-maps",
+        action="store_true",
+        help="Entrenar la red neuronal sobre los 12 circuitos completos del catálogo.",
+    )
+    parser.add_argument(
         "--maps",
         nargs="+",
-        choices=list(PRESET_MAPS.keys()),
+        choices=[*list(PRESET_MAPS.keys()), "all"],
         default=["kart_classic", "oval_arena", "pocket_chicane"],
-        help="Circuitos sobre los cuales entrenar la red neuronal.",
+        help="Circuitos sobre los cuales entrenar la red neuronal (o 'all' para los 12).",
     )
     parser.add_argument(
         "--generations",
@@ -76,10 +81,12 @@ def main(argv: list[str] | None = None) -> int:
         reward_cfg = RewardConfig()
         reward_cfg.to_json_file(cfg_path)
 
+    chosen_maps = list(PRESET_MAPS.keys()) if (args.all_maps or "all" in args.maps) else args.maps
+
     print("=====================================================================")
     print(" ENTRENAMIENTO DE RED NEURONAL RL (VERSIÓN 1) - SIMULADOR 2D LIDAR")
     print("=====================================================================")
-    print(f" * Circuitos de entrenamiento : {', '.join(args.maps)}")
+    print(f" * Circuitos de entrenamiento ({len(chosen_maps)}/12) : {', '.join(chosen_maps)}")
     print(f" * Generaciones x Población   : {args.generations} x {args.population}")
     print(f" * Procesos paralelos (CPU)   : {args.workers}")
     print(f" * Archivo de Recompensas     : {cfg_path}")
@@ -87,7 +94,7 @@ def main(argv: list[str] | None = None) -> int:
     print("---------------------------------------------------------------------")
 
     trainer = RLTrainer(
-        map_keys=args.maps,
+        map_keys=chosen_maps,
         reward_config=reward_cfg,
         hidden_dims=(32, 32),
         population_size=args.population,
