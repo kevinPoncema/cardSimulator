@@ -27,7 +27,8 @@ class RewardConfig:
     obstacle_clearance_bonus: float = 0.50
 
     # Grandes premios por monedas, checkpoints y vueltas completas
-    coin_collected_reward: float = 45.0
+    coin_collected_reward: float = 180.0
+    coin_proximity_weight: float = 2.5
     checkpoint_reward: float = 65.0
     lap_completion_reward: float = 250.0
 
@@ -49,13 +50,13 @@ class RewardConfig:
     grass_step_penalty: float = -1.5
     kerb_step_penalty: float = -0.2
 
-    # Castigos por sentido contrario y cruce inverso de meta/checkpoints
-    wrong_way_step_penalty: float = -3.5
+    # Castigos severos por sentido contrario y cruce inverso de meta/checkpoints
+    wrong_way_step_penalty: float = -25.0
     wrong_way_escalation_factor: float = 1.5
     max_wrong_way_steps: int = 90
-    wrong_way_timeout_penalty: float = -90.0
-    reverse_finish_line_penalty: float = -120.0
-    reverse_checkpoint_penalty: float = -55.0
+    wrong_way_timeout_penalty: float = -1000.0
+    reverse_finish_line_penalty: float = -1500.0
+    reverse_checkpoint_penalty: float = -400.0
 
     # Castigos por quedarse detenido / atascado
     idle_speed_threshold: float = 20.0
@@ -147,11 +148,29 @@ class RewardCalculator:
             total_reward += r_asphalt + r_clearance
             breakdown["asphalt_and_clearance"] = round(r_asphalt + r_clearance, 4)
 
-        # 3. Premio por recolectar Monedas en la pista
+        # 3. Premio masivo por recolectar Monedas en la pista y bonificación por aproximación
         if coins_collected_count > 0:
             r_coins = float(coins_collected_count) * cfg.coin_collected_reward
             total_reward += r_coins
             breakdown["coin_collected"] = r_coins
+
+        # Guía continua hacia monedas alcanzables activas por delante del vehículo
+        if track.coins and norm_progress > 0.05 and not car.is_wrong_way:
+            active_coins = [c for c in track.coins if c.active]
+            if active_coins:
+                fwd_vec = car.forward_unit_vector()
+                # Monedas dentro de un radio de 240 px y con proyección hacia adelante
+                close_coins = [
+                    c for c in active_coins
+                    if car.position.distance_to(c.position) < 240.0
+                    and (c.position - car.position).dot(fwd_vec) > 10.0
+                ]
+                if close_coins:
+                    nearest = min(close_coins, key=lambda c: car.position.distance_to(c.position))
+                    dist = car.position.distance_to(nearest.position)
+                    r_prox = max(0.0, (240.0 - dist) / 240.0) * cfg.coin_proximity_weight
+                    total_reward += r_prox
+                    breakdown["coin_proximity"] = round(r_prox, 4)
 
         # 4. Premios y castigos por cruzar Checkpoints o Línea de Meta
         if lap_completed:

@@ -14,6 +14,7 @@ Toda la documentación técnica detallada se encuentra en la carpeta [`docs/`](f
 * **[`docs/rendering_and_maps.md`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/docs/rendering_and_maps.md):** Sistema de renderizado, cámara con interpolación suave, minimapa y formato de los 12 circuitos.
 * **[`docs/lidar_spec.md`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/docs/lidar_spec.md):** Especificación matemática de los 5 rayos LIDAR y vector de estado $S \in \mathbb{R}^7$.
 * **[`docs/rl_training_guide.md`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/docs/rl_training_guide.md):** Guía de entrenamiento por refuerzo (RL), red neuronal MLP y tabla de recompensas.
+* **[`docs/training_philosophy.md`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/docs/training_philosophy.md):** **Filosofía del entrenamiento**, psicología del diseño de recompensas, prevención de trampas (*anti-reward hacking*), caza de monedas y auto-recuperación de trompos.
 
 ```text
 ├── assets/
@@ -204,7 +205,10 @@ El script [`src/train_agent.py`](file:///home/kevin/Documentos/personal/pythonZZ
 Puedes modificar directamente los números en [`config/reward_config.json`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/config/reward_config.json):
 * `checkpoint_reward` (`+65.0`): Premio por cruzar un checkpoint en orden.
 * `lap_completion_reward` (`+250.0`): Premio por completar una vuelta válida.
-* `coin_collected_reward` (`+45.0`): Premio por recoger una moneda transitable.
+* `coin_collected_reward` (`+180.0`): **Premio masivo por recoger una moneda transitable** (incentiva activamente a la IA a desviarse para cazarlas).
+* `coin_proximity_weight` (`+2.5`): **Guía continua de atracción** hacia monedas visibles por delante del vehículo.
+* `reverse_finish_line_penalty` (`-1500.0`): **Castigo colosal y aborto del episodio** por cruzar la línea de meta en sentido contrario.
+* `wrong_way_timeout_penalty` (`-1000.0`): Castigo por persistir en sentido contrario.
 * `wall_stuck_step_penalty` (`-14.0`): Castigo progresivo por quedarse atascado contra un muro sin retroceder.
 * `reverse_escape_reward` (`+4.5`): Premio por dar marcha atrás para separarse de un obstáculo frontal.
 * `cone_collision_penalty` (`-40.0`) y `barrier_collision_penalty` (`-75.0`): Castigos por chocar con obstáculos.
@@ -213,10 +217,10 @@ Puedes modificar directamente los números en [`config/reward_config.json`](file
 
 ## 7. Ejecución de Pruebas Unitarias (`pytest`)
 
-El proyecto cuenta con una suite completa de **34 tests unitarios** que verifican la arquitectura DDD, objetos de valor, cinemática, cálculo LIDAR, entorno de RL, monedas y atascos:
+El proyecto cuenta con una suite completa de **35 tests unitarios** que verifican la arquitectura DDD, objetos de valor, cinemática, cálculo LIDAR, entorno de RL, monedas, atascos y recuperación de trompos:
 
 ```bash
-# Ejecutar toda la batería de tests
+# Ejecutar toda la batería de tests (35 passed)
 .venv/bin/pytest tests/ -v
 
 # Ejecutar únicamente los tests del dominio vehicular y pureza DDD

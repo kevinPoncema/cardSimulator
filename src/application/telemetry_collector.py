@@ -19,6 +19,8 @@ class TelemetryCollector(ITelemetryProvider):
     def __init__(self) -> None:
         self._observations: dict[str, np.ndarray] = {}
         self._readings: dict[str, SensorReading] = {}
+        self._wrong_ways: dict[str, bool] = {}
+        self._heading_alignments: dict[str, float] = {}
         self._default_car_id: str | None = None
 
     @staticmethod
@@ -60,7 +62,23 @@ class TelemetryCollector(ITelemetryProvider):
         obs = self.build_observation_vector(car, reading)
         self._readings[car.car_id] = reading
         self._observations[car.car_id] = obs
+        self._wrong_ways[car.car_id] = bool(car.is_wrong_way)
+        self._heading_alignments[car.car_id] = float(car.track_heading_alignment)
         return obs
+
+    def is_wrong_way(self, car_id: str | None = None) -> bool:
+        """Indica si el vehículo está circulando o encarado en sentido contrario."""
+        target_id = car_id or self._default_car_id
+        if target_id is None:
+            return False
+        return self._wrong_ways.get(target_id, False)
+
+    def get_heading_alignment(self, car_id: str | None = None) -> float:
+        """Retorna la proyección de alineación del vehículo respecto al sentido de carrera [-1.0, 1.0]."""
+        target_id = car_id or self._default_car_id
+        if target_id is None:
+            return 1.0
+        return self._heading_alignments.get(target_id, 1.0)
 
     def get_observation(self, car_id: str | None = None) -> np.ndarray:
         """Retorna el vector de estado normalizado S -> np.ndarray (Sección 6.2)."""

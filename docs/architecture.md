@@ -251,7 +251,8 @@ sequenceDiagram
 │   ├── physics_model.md          # Modelo físico arcade asistido, ruedas virtuales y fricción
 │   ├── rendering_and_maps.md     # Cámara de seguimiento, renderizado por capas y catálogo de circuitos
 │   ├── lidar_spec.md             # Especificación matemática del sensor LIDAR y vector S
-│   └── rl_training_guide.md      # Guía de entrenamiento de redes neuronales en CPU local
+│   ├── rl_training_guide.md      # Guía de entrenamiento de redes neuronales en CPU local
+│   └── training_philosophy.md    # Filosofía del entrenamiento, diseño de recompensas y anti-cheating
 ├── models/
 │   ├── rl_agent_v1.npz           # Pesos serializados del Perceptrón Multicapa (MLP)
 │   └── training_history.json     # Histórico de rendimiento (fitness medio y máximo por generación)

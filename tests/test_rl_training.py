@@ -42,9 +42,10 @@ def test_reward_config_loads_from_json() -> None:
     cfg = RewardConfig.from_json_file(cfg_path)
     assert cfg.checkpoint_reward > 0
     assert cfg.lap_completion_reward > cfg.checkpoint_reward
+    assert cfg.coin_collected_reward >= 180.0
     assert cfg.cone_collision_penalty < 0
     assert cfg.barrier_collision_penalty < 0
-    assert cfg.reverse_finish_line_penalty < 0
+    assert cfg.reverse_finish_line_penalty <= -1500.0
 
 
 def test_reward_calculator_penalizes_obstacles_and_wrong_way() -> None:
@@ -208,7 +209,33 @@ def test_random_coins_spawn_only_on_reachable_asphalt_and_grant_points() -> None
         coins_collected_count=1,
     )
     assert bd_coin["coin_collected"] == cfg.coin_collected_reward
-    assert reward_coin > 30.0
+    assert reward_coin > 150.0
+
+    # Verificar bonificación continua de aproximación a monedas por delante
+    coin_tangent = track.closest_centerline_tangent(target_coin.position)
+    car.angle = Angle(radians=math.atan2(coin_tangent.y, coin_tangent.x))
+    car.position = target_coin.position - coin_tangent * 80.0
+    car.velocity = coin_tangent * 160.0
+    r_prox, _, bd_prox = calc.compute_step_reward(
+        car=car,
+        track=track,
+        reading=reading,
+        gate_crossings=[],
+        lap_completed=False,
+        checkpoint_advanced=False,
+        coins_collected_count=0,
+    )
+    assert "coin_proximity" in bd_prox
+    assert bd_prox["coin_proximity"] > 0.0
+
+
+def test_turnaround_action_when_car_is_spun_around() -> None:
+    """Verifica que la política y el controlador giren en U si el coche queda encarado al revés."""
+    policy = MLPPolicy.create_warm_start()
+    obs = np.array([0.9, 0.8, 0.4, 0.7, 0.3, 0.5, 0.0], dtype=np.float32)
+    turn_action = policy.turnaround_action(obs)
+    assert turn_action.throttle > 0.0
+    assert abs(turn_action.steer) > 0.5
 
 
 def test_multi_car_orchestrator_parameter() -> None:

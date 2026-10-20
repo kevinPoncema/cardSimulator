@@ -47,7 +47,8 @@ Todos los premios y castigos se leen desde [`config/reward_config.json`](file://
 | `obstacle_clearance_bonus` | `+0.45` | Premia mantener despejados los rayos frontales/diagonales (esquivar obstáculos con margen). |
 | `checkpoint_reward` | **`+65.0`** | **Premio grande al cruzar cada Checkpoint (`1 -> 2 -> 3`) en el sentido correcto.** |
 | `lap_completion_reward` | **`+250.0`** | **Gran premio al completar una vuelta entera válida (cruzar Meta tras los 3 checkpoints).** |
-| `coin_collected_reward` | **`+45.0`** | **Premio por recolectar cada moneda dorada generada sobre el asfalto transitable.** |
+| `coin_collected_reward` | **`+180.0`** | **Premio masivo por recolectar cada moneda dorada sobre el asfalto (incentiva activamente salir de la trazada central para cazarla).** |
+| `coin_proximity_weight` | **`+2.5`** | **Atracción continua hacia monedas activas visibles por delante del vehículo para crear un gradiente de aprendizaje.** |
 | `cone_collision_penalty` | **`-40.0`** | **Quita puntos al chocar contra un cono de tráfico.** |
 | `barrier_collision_penalty` | **`-75.0`** | **Quita puntos al estrellarse contra una barrera rígida.** |
 | `wall_collision_penalty` | **`-65.0`** | **Quita puntos al impacto inicial contra el muro perimetral de la pista.** |
@@ -58,14 +59,17 @@ Todos los premios y castigos se leen desde [`config/reward_config.json`](file://
 | `pothole_step_penalty` | **`-4.0`** | **Quita puntos en cada frame que el coche pisa un bache gigante.** |
 | `oil_slick_step_penalty` | **`-4.5`** | **Quita puntos en cada frame que el coche pisa una mancha de aceite.** |
 | `grass_step_penalty` | `-1.5` | Quita puntos por salirse al césped. |
-| `wrong_way_step_penalty` | **`-3.5`** | **Quita puntos en cada paso que el coche conduce en sentido contrario.** |
+| `wrong_way_step_penalty` | **`-25.0`** | **Castigo severo por cada paso que el coche circula en sentido contrario.** |
 | `max_wrong_way_steps` | `90` | Número máximo de pasos seguidos permitidos en sentido contrario ($1.5\text{ s}$). |
-| `wrong_way_timeout_penalty` | **`-90.0`** | **Castigo severo y fin del episodio si va en sentido contrario durante demasiado tiempo.** |
-| `reverse_finish_line_penalty` | **`-120.0`** | **Castigo severo si cruza la línea de meta en sentido contrario.** |
-| `reverse_checkpoint_penalty` | **`-55.0`** | **Castigo si cruza un checkpoint en sentido contrario.** |
+| `wrong_way_timeout_penalty` | **`-1000.0`** | **Castigo colosal y fin inmediato del episodio si persiste en sentido contrario.** |
+| `reverse_finish_line_penalty` | **`-1500.0`** | **Castigo colosal (anula más de 6 vueltas completas) y terminación inmediata si cruza la línea de meta en sentido contrario.** |
+| `reverse_checkpoint_penalty` | **`-400.0`** | **Castigo severo si cruza un checkpoint en sentido contrario.** |
 | `terminate_on_wall_crash` | `false` | Se mantiene en `false` para obligar a la IA a aprender a dar marcha atrás y corregir trayectoria tras tocar una pared en curvas cerradas (como en el Mapa 3 `pocket_chicane`). |
 | `terminate_on_barrier_crash` | `true` | Si es `true`, el episodio termina al chocar contra una barrera de hormigón. |
 | `terminate_on_reverse_finish_line` | `true` | Si es `true`, el episodio termina si cruza la meta al revés. |
+
+> [!NOTE]
+> Para comprender en profundidad los fundamentos teóricos, la psicología de diseño de recompensas y la prevención de atajos matemáticos (*reward hacking*), consulta el documento **[`docs/training_philosophy.md`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/docs/training_philosophy.md)**.
 
 ---
 

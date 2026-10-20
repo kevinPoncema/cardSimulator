@@ -220,6 +220,18 @@ class MLPPolicy:
             handbrake=handbrake,
         )
 
+    def turnaround_action(self, obs: np.ndarray) -> CarAction:
+        """Maniobra refleja de giro en U para reorientar el vehículo cuando queda encarado al revés."""
+        d_45_l = float(obs[1]) if obs.size > 1 else 0.5
+        d_45_r = float(obs[2]) if obs.size > 2 else 0.5
+        turn_dir = 1.0 if d_45_l >= d_45_r else -1.0
+        return CarAction(
+            throttle=0.45,
+            brake=0.0,
+            steer=turn_dir,
+            handbrake=False,
+        )
+
     def save(self, path: str | Path) -> Path:
         """Guarda los pesos y arquitectura de la red neuronal en formato comprimido .npz."""
         out_path = Path(path)

@@ -166,12 +166,15 @@ class CarRacingRLEnv:
         for coin in collected_coins:
             self.car.collect_coin(coin.value)
 
-        # Detectar sentido contrario
-        if self.car.velocity.magnitude() > 35.0:
-            tangent = self.track.closest_centerline_tangent(self.car.position)
-            self.car.is_wrong_way = self.car.velocity.dot(tangent) < -25.0
+        # Detectar sentido contrario (por velocidad negativa o morro apuntando al revés)
+        tangent = self.track.closest_centerline_tangent(self.car.position)
+        heading_dot = self.car.forward_unit_vector().dot(tangent)
+        vel_dot = self.car.velocity.dot(tangent)
+        self.car.track_heading_alignment = float(heading_dot)
+        if self.car.velocity.magnitude() > 25.0:
+            self.car.is_wrong_way = bool(vel_dot < -15.0 or (heading_dot < -0.3 and vel_dot < 10.0))
         else:
-            self.car.is_wrong_way = False
+            self.car.is_wrong_way = bool(heading_dot < -0.25)
 
         reading = self.sensor.scan(self.car)
         obs = self.telemetry.collect(self.car, reading)

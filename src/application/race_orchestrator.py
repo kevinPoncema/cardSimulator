@@ -148,12 +148,15 @@ class RaceOrchestrator:
             for coin in collected_coins:
                 car.collect_coin(coin.value)
 
-            # Detectar si el vehículo circula en sentido contrario a la pista
-            if car.velocity.magnitude() > 35.0:
-                tangent = self.track.closest_centerline_tangent(car.position)
-                car.is_wrong_way = car.velocity.dot(tangent) < -25.0
+            # Detectar si el vehículo circula o está encarado en sentido contrario a la pista
+            tangent = self.track.closest_centerline_tangent(car.position)
+            heading_dot = car.forward_unit_vector().dot(tangent)
+            vel_dot = car.velocity.dot(tangent)
+            car.track_heading_alignment = float(heading_dot)
+            if car.velocity.magnitude() > 25.0:
+                car.is_wrong_way = bool(vel_dot < -15.0 or (heading_dot < -0.3 and vel_dot < 10.0))
             else:
-                car.is_wrong_way = False
+                car.is_wrong_way = bool(heading_dot < -0.25)
 
             reading = self.sensor.scan(car)
             self.telemetry.collect(car, reading)

@@ -57,6 +57,7 @@ class Car(IControllable):
     next_checkpoint_id: int = 1
     checkpoints_passed_in_lap: int = 0
     is_wrong_way: bool = False
+    track_heading_alignment: float = 1.0
     active_collisions: set[str] = field(default_factory=set)
     stuck_against_wall_steps: int = 0
 
@@ -112,8 +113,13 @@ class Car(IControllable):
                     self.checkpoints_passed_in_lap += 1
                     self.next_checkpoint_id = (gate_id + 1) % total_gates
         else:
+            if gate_id == 0:
+                # Cruce de meta en sentido contrario: penalización severa en el marcador
+                self.score = max(0, self.score - 5)
+                self.checkpoints_passed_in_lap = 0
+                self.next_checkpoint_id = 1
             # Si regresa en sentido contrario por el último checkpoint validado, revierte el avance
-            if self.checkpoints_passed_in_lap > 0 and gate_id == self.checkpoints_passed_in_lap:
+            elif self.checkpoints_passed_in_lap > 0 and gate_id == self.checkpoints_passed_in_lap:
                 self.checkpoints_passed_in_lap -= 1
                 self.next_checkpoint_id = gate_id
 

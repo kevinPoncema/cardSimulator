@@ -67,6 +67,12 @@ class RLAgentController(IInputController):
         obs = self.telemetry_provider.get_observation(self.car_id)
         if obs.size < 7:
             return CarAction.idle()
+
+        # Si el coche ha hecho un trompo y está apuntando en sentido contrario a la carrera:
+        check_wrong_way = getattr(self.telemetry_provider, "is_wrong_way", None)
+        if check_wrong_way is not None and check_wrong_way(self.car_id):
+            return self.policy.turnaround_action(obs)
+
         return self.policy.predict_car_action(obs)
 
     def poll_debug_toggle(self) -> bool:
