@@ -47,7 +47,7 @@ A continuación se detallan las trampas descubiertas durante el desarrollo y có
 ### 2.2 La Trampa de la Meta Inversa: Castigo Colosal (`-1500.0`)
 * **El intento de trampa:** En simuladores sin validación estricta, un agente descubre rápidamente que puede cruzar la meta, retroceder $2\text{ metros}$ marcha atrás, volver a cruzar hacia adelante, y repetir esto indefinidamente acumulando puntos de vuelta en pocos segundos sin recorrer el circuito.
 * **La defensa por partida doble:**
-  1. **Capa de Dominio (Física y Geometría):** La entidad [`Car`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/entities/car.py) implementa una máquina de estados obligatoria: la compuerta de meta (gate 0) **sólo otorga puntos si se han cruzado previamente y en orden todos los checkpoints intermedios** ($1 \to 2 \to 3$). Además, cruzar la meta al revés resta inmediatamente puntos al marcador del jugador/coche (`score = max(0, score - 5)`).
+  1. **Capa de Dominio (Física y Geometría):** La entidad [`Car`](../src/domain/entities/car.py) implementa una máquina de estados obligatoria: la compuerta de meta (gate 0) **sólo otorga puntos si se han cruzado previamente y en orden todos los checkpoints intermedios** ($1 \to 2 \to 3$). Además, cruzar la meta al revés resta inmediatamente puntos al marcador del jugador/coche (`score = max(0, score - 5)`).
   2. **Capa de Refuerzo (Castigo Colosal):** Si el coche atraviesa la línea de meta en sentido contrario, recibe una penalización devastadora:
      $$\text{Penalty}_{\text{reverse\_finish}} = \mathbf{-1500.0}$$
      y el episodio se aborta instantáneamente (`terminated = True`). Un castigo de $-1500.0$ anula el equivalente a más de 6 vueltas perfectas, erradicando cualquier linaje genético que intente aproximarse a la meta desde el lado opuesto.
@@ -81,11 +81,11 @@ ve vía despejada al frente ($d_0 \approx 1.0$) en ambas orientaciones. Sin info
 
 ### La Solución Arquitectónica: Auto-Recuperación con Giro en U
 1. **Detección Rigurosa (`is_wrong_way`):**
-   Tanto en [`RaceOrchestrator`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/application/race_orchestrator.py) como en [`CarRacingRLEnv`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/application/rl/car_racing_env.py), se compara en cada fotograma el vector unitario del chasis $\hat{u}_{fwd}$ y la velocidad $\vec{v}$ con la tangente del circuito $\vec{T}$:
+   Tanto en [`RaceOrchestrator`](../src/application/race_orchestrator.py) como en [`CarRacingRLEnv`](../src/application/rl/car_racing_env.py), se compara en cada fotograma el vector unitario del chasis $\hat{u}_{fwd}$ y la velocidad $\vec{v}$ con la tangente del circuito $\vec{T}$:
    $$\cos\theta = \hat{u}_{fwd} \cdot \vec{T}$$
    Si $\cos\theta < -0.25$ (el coche está rotado más de $105^\circ$ respecto al sentido de carrera), se activa la bandera `is_wrong_way`.
 2. **Maniobra Refleja de Giro en U (`turnaround_action`):**
-   [`RLAgentController`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/infrastructure/input/rl_agent_controller.py) consulta en tiempo real `telemetry_provider.is_wrong_way(car_id)`. Si es positivo, en lugar de acelerar hacia el desastre, activa la maniobra refleja:
+   [`RLAgentController`](../src/infrastructure/input/rl_agent_controller.py) consulta en tiempo real `telemetry_provider.is_wrong_way(car_id)`. Si es positivo, en lugar de acelerar hacia el desastre, activa la maniobra refleja:
    - Acelerador moderado ($0.45$) con giro de volante máximo hacia el lado con mayor amplitud de escape.
    - En menos de un segundo el vehículo realiza un trompo controlado sobre su propio eje.
    - En cuanto $\hat{u}_{fwd} \cdot \vec{T} > 0$, la bandera `is_wrong_way` se desactiva y la red neuronal retoma la conducción a toda velocidad en el sentido correcto.
@@ -94,7 +94,7 @@ ve vía despejada al frente ($d_0 \approx 1.0$) en ambas orientaciones. Sin info
 
 ## 4. Por qué Optimización Evolutiva (CEM-NES) en CPU
 
-El entrenamiento implementado en [`src/train_agent.py`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/train_agent.py) descarta deliberadamente algoritmos clásicos basados en gradiente pesado como PPO o SAC con GPU por las siguientes razones:
+El entrenamiento implementado en [`src/train_agent.py`](../src/train_agent.py) descarta deliberadamente algoritmos clásicos basados en gradiente pesado como PPO o SAC con GPU por las siguientes razones:
 
 1. **Paralelismo Puro en Procesador:** La simulación física de Pymunk y el cálculo de rayos LIDAR se ejecutan en CPU en $O(1)$. Con el módulo `multiprocessing` de Python, una CPU como el AMD Ryzen 7 evalúa a toda la población en paralelo a más de **$30.000$ pasos por segundo** sin coste de sincronización CUDA ni latencias de memoria VRAM.
 2. **Exploración Global Libre de Gradientes Locales:** Al entrenar sobre circuitos con obstáculos discontinuos (conos que botan, baches y aceite), la función de pérdida matemática no es diferenciable. Las estrategias evolutivas (*Natural Evolution Strategies / Cross-Entropy Method*) muestrean el espacio de parámetros mediante perturbaciones gaussianas:

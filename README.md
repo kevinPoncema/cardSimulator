@@ -6,15 +6,15 @@ Núcleo jugable de un simulador de carreras 2D con vista cenital (*top-down*) en
 
 ## 1. Estructura del Proyecto y Documentación
 
-Toda la documentación técnica detallada se encuentra en la carpeta [`docs/`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/docs):
+Toda la documentación técnica detallada se encuentra en la carpeta [`docs/`](docs):
 
-* **[`docs/architecture.md`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/docs/architecture.md):** **Arquitectura integral del sistema**, capas DDD/Clean Architecture, SOLID, puertos y adaptadores, ciclo de simulación y diagramas Mermaid.
-* **[`docs/system_design.md`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/docs/system_design.md):** Especificación de contratos de interfaces, principios SOLID y secuencias.
-* **[`docs/physics_model.md`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/docs/physics_model.md):** Modelo físico arcade asistido en Pymunk, ruedas virtuales, fricción lateral y superficies.
-* **[`docs/rendering_and_maps.md`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/docs/rendering_and_maps.md):** Sistema de renderizado, cámara con interpolación suave, minimapa y formato de los 12 circuitos.
-* **[`docs/lidar_spec.md`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/docs/lidar_spec.md):** Especificación matemática de los 5 rayos LIDAR y vector de estado $S \in \mathbb{R}^7$.
-* **[`docs/rl_training_guide.md`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/docs/rl_training_guide.md):** Guía de entrenamiento por refuerzo (RL), red neuronal MLP y tabla de recompensas.
-* **[`docs/training_philosophy.md`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/docs/training_philosophy.md):** **Filosofía del entrenamiento**, psicología del diseño de recompensas, prevención de trampas (*anti-reward hacking*), caza de monedas y auto-recuperación de trompos.
+* **[`docs/architecture.md`](docs/architecture.md):** **Arquitectura integral del sistema**, capas DDD/Clean Architecture, SOLID, puertos y adaptadores, ciclo de simulación y diagramas Mermaid.
+* **[`docs/system_design.md`](docs/system_design.md):** Especificación de contratos de interfaces, principios SOLID y secuencias.
+* **[`docs/physics_model.md`](docs/physics_model.md):** Modelo físico arcade asistido en Pymunk, ruedas virtuales, fricción lateral y superficies.
+* **[`docs/rendering_and_maps.md`](docs/rendering_and_maps.md):** Sistema de renderizado, cámara con interpolación suave, minimapa y formato de los 12 circuitos.
+* **[`docs/lidar_spec.md`](docs/lidar_spec.md):** Especificación matemática de los 5 rayos LIDAR y vector de estado $S \in \mathbb{R}^7$.
+* **[`docs/rl_training_guide.md`](docs/rl_training_guide.md):** Guía de entrenamiento por refuerzo (RL), red neuronal MLP y tabla de recompensas.
+* **[`docs/training_philosophy.md`](docs/training_philosophy.md):** **Filosofía del entrenamiento**, psicología del diseño de recompensas, prevención de trampas (*anti-reward hacking*), caza de monedas y auto-recuperación de trompos.
 
 ```text
 ├── assets/
@@ -58,7 +58,7 @@ pip install -r requirements.txt
 
 ## 3. Comandos de Ejecución de la Simulación (`src/main.py`)
 
-El punto de entrada [`src/main.py`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/main.py) permite configurar completamente la experiencia de juego o evaluación mediante parámetros de línea de comandos:
+El punto de entrada [`src/main.py`](src/main.py) permite configurar completamente la experiencia de juego o evaluación mediante parámetros de línea de comandos:
 
 ### Tabla de Parámetros de `src/main.py`
 
@@ -92,7 +92,7 @@ El punto de entrada [`src/main.py`](file:///home/kevin/Documentos/personal/pytho
 # Parrilla de 4 coches en el circuito Pocket Chicane
 .venv/bin/python3 src/main.py --controller human --map pocket_chicane --num-cars 4
 ```
-*Tú conduces el coche rojo principal (`car_player_1`), y los otros 3 coches rivales son controlados por la Red Neuronal entrenada ([`models/rl_agent_v1.npz`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/models/rl_agent_v1.npz)).*
+*Tú conduces el coche rojo principal (`car_player_1`), y los otros 3 coches rivales son controlados por la Red Neuronal entrenada ([`models/rl_agent_v1.npz`](models/rl_agent_v1.npz)).*
 
 #### 3. Ver a la Red Neuronal Conducir Sola (Demostración Autónoma)
 ```bash
@@ -141,7 +141,7 @@ En todos los circuitos aparecen monedas doradas que se generan **estrictamente s
 
 ## 5. Catálogo de los 12 Circuitos Disponibles
 
-El simulador cuenta con 12 circuitos en [`assets/maps/`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/assets/maps), organizados por escala y accesibles mediante teclas rápidas o el parámetro `--map`:
+El simulador cuenta con 12 circuitos en [`assets/maps/`](assets/maps), organizados por escala y accesibles mediante teclas rápidas o el parámetro `--map`:
 
 | Tecla | Identificador | Nombre del Circuito | Dimensiones | Características y Obstáculos |
 | :---: | :--- | :--- | :---: | :--- |
@@ -162,7 +162,7 @@ El simulador cuenta con 12 circuitos en [`assets/maps/`](file:///home/kevin/Docu
 
 ## 6. Comandos de Entrenamiento por Refuerzo (`src/train_agent.py`)
 
-El script [`src/train_agent.py`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/train_agent.py) ejecuta el entrenamiento evolutivo / CEM-NES de la red neuronal aprovechando todos los núcleos de tu CPU mediante `multiprocessing`.
+El script [`src/train_agent.py`](src/train_agent.py) ejecuta el entrenamiento evolutivo / CEM-NES de la red neuronal aprovechando todos los núcleos de tu CPU mediante `multiprocessing`.
 
 ### Tabla de Parámetros de `src/train_agent.py`
 
@@ -189,7 +189,7 @@ El script [`src/train_agent.py`](file:///home/kevin/Documentos/personal/pythonZZ
   --max-steps 700 \
   --workers 8
 ```
-*Tarda menos de un minuto en un procesador Ryzen 7 y actualiza [`models/rl_agent_v1.npz`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/models/rl_agent_v1.npz) con el mejor modelo capaz de esquivar obstáculos, recoger monedas y desatascarse con reversa en las curvas cerradas del Mapa 3.*
+*Tarda menos de un minuto en un procesador Ryzen 7 y actualiza [`models/rl_agent_v1.npz`](models/rl_agent_v1.npz) con el mejor modelo capaz de esquivar obstáculos, recoger monedas y desatascarse con reversa en las curvas cerradas del Mapa 3.*
 
 #### 2. Entrenamiento Extensivo en Circuitos Medianos y Grandes
 ```bash
@@ -202,7 +202,7 @@ El script [`src/train_agent.py`](file:///home/kevin/Documentos/personal/pythonZZ
 ```
 
 #### 3. Ajuste de Recompensas en `config/reward_config.json`
-Puedes modificar directamente los números en [`config/reward_config.json`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/config/reward_config.json):
+Puedes modificar directamente los números en [`config/reward_config.json`](config/reward_config.json):
 * `checkpoint_reward` (`+65.0`): Premio por cruzar un checkpoint en orden.
 * `lap_completion_reward` (`+250.0`): Premio por completar una vuelta válida.
 * `coin_collected_reward` (`+180.0`): **Premio masivo por recoger una moneda transitable** (incentiva activamente a la IA a desviarse para cazarlas).

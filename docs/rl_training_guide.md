@@ -3,9 +3,9 @@
 ## 1. Visión General del Sistema de Entrenamiento (Versión 1)
 
 El simulador incorpora un sistema completo de **Aprendizaje por Refuerzo (*Reinforcement Learning*)** desacoplado en tres módulos principales:
-1. **Configuración y Calculadora de Recompensas ([`RewardConfig` / `RewardCalculator`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/application/rl/reward_config.py)):** Parametrizable mediante el archivo externo [`config/reward_config.json`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/config/reward_config.json) sin necesidad de tocar el código fuente.
-2. **Entorno de Simulación RL ([`CarRacingRLEnv`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/application/rl/car_racing_env.py)):** Sigue el estándar de `Gymnasium` (`reset()`, `step(action)`, `render()`, `close()`), ejecutándose sin interfaz gráfica a miles de pasos por segundo.
-3. **Red Neuronal MLP y Entrenador Multinúcleo ([`MLPPolicy`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/infrastructure/ai/mlp_policy.py) y [`RLTrainer`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/application/rl/trainer.py)):** Perceptrón Multicapa ($7 \to 32 \to 32 \to 2$) entrenado en paralelo en todos los núcleos del procesador mediante Estrategias Evolutivas y Método de Entropía Cruzada (*CEM-NES*).
+1. **Configuración y Calculadora de Recompensas ([`RewardConfig` / `RewardCalculator`](../src/application/rl/reward_config.py)):** Parametrizable mediante el archivo externo [`config/reward_config.json`](../config/reward_config.json) sin necesidad de tocar el código fuente.
+2. **Entorno de Simulación RL ([`CarRacingRLEnv`](../src/application/rl/car_racing_env.py)):** Sigue el estándar de `Gymnasium` (`reset()`, `step(action)`, `render()`, `close()`), ejecutándose sin interfaz gráfica a miles de pasos por segundo.
+3. **Red Neuronal MLP y Entrenador Multinúcleo ([`MLPPolicy`](../src/infrastructure/ai/mlp_policy.py) y [`RLTrainer`](../src/application/rl/trainer.py)):** Perceptrón Multicapa ($7 \to 32 \to 32 \to 2$) entrenado en paralelo en todos los núcleos del procesador mediante Estrategias Evolutivas y Método de Entropía Cruzada (*CEM-NES*).
 
 ```mermaid
 flowchart LR
@@ -37,7 +37,7 @@ flowchart LR
 
 ## 3. Cómo Ajustar las Recompensas y Penalizaciones (`config/reward_config.json`)
 
-Todos los premios y castigos se leen desde [`config/reward_config.json`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/config/reward_config.json). Puedes editar cualquier número con un editor de texto y volver a lanzar `src/train_agent.py`:
+Todos los premios y castigos se leen desde [`config/reward_config.json`](../config/reward_config.json). Puedes editar cualquier número con un editor de texto y volver a lanzar `src/train_agent.py`:
 
 | Parámetro en `reward_config.json` | Valor por Defecto | Qué hace exactamente |
 | :--- | :---: | :--- |
@@ -69,7 +69,7 @@ Todos los premios y castigos se leen desde [`config/reward_config.json`](file://
 | `terminate_on_reverse_finish_line` | `true` | Si es `true`, el episodio termina si cruza la meta al revés. |
 
 > [!NOTE]
-> Para comprender en profundidad los fundamentos teóricos, la psicología de diseño de recompensas y la prevención de atajos matemáticos (*reward hacking*), consulta el documento **[`docs/training_philosophy.md`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/docs/training_philosophy.md)**.
+> Para comprender en profundidad los fundamentos teóricos, la psicología de diseño de recompensas y la prevención de atajos matemáticos (*reward hacking*), consulta el documento **[`docs/training_philosophy.md`](training_philosophy.md)**.
 
 ---
 

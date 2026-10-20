@@ -2,7 +2,7 @@
 
 ## 1. Creación y Generación Procedural de Mapas (`Track`)
 
-Los circuitos del simulador se definen mediante curvas paramétricas cerradas en [`Track`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/entities/track.py) y archivos JSON ubicados en `assets/maps/`. Esto permite crear pistas gigantescas (de $3200 \times 2200\text{ px}$ o más) con curvas suaves a partir de unos pocos puntos de control.
+Los circuitos del simulador se definen mediante curvas paramétricas cerradas en [`Track`](../src/domain/entities/track.py) y archivos JSON ubicados en `assets/maps/`. Esto permite crear pistas gigantescas (de $3200 \times 2200\text{ px}$ o más) con curvas suaves a partir de unos pocos puntos de control.
 
 ```mermaid
 flowchart LR
@@ -112,7 +112,7 @@ Cualquier archivo `.json` en `assets/maps/` sigue esta estructura:
 
 ## 2. Arquitectura del Motor de Renderizado (`PygameRenderer`)
 
-El renderizador ([`PygameRenderer`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/infrastructure/rendering/pygame_renderer.py)) está diseñado para mantener **60 FPS constantes** incluso en mapas enormes de $3400 \times 2400\text{ px}$.
+El renderizador ([`PygameRenderer`](../src/infrastructure/rendering/pygame_renderer.py)) está diseñado para mantener **60 FPS constantes** incluso en mapas enormes de $3400 \times 2400\text{ px}$.
 
 ### 2.1 Caché de Superficie del Mundo Estático (`_build_track_surface`)
 Dibujar cientos de polígonos de asfalto, pianos y muros en cada frame sería costoso. En su lugar, cuando se carga o cambia un mapa:
@@ -137,7 +137,7 @@ La ventana de visualización (*viewport*) mide `1280 x 800 px`. En cada fotogram
    $$(x_s, y_s) = (x_w - C_x, \; y_w - C_y)$$
 
 ### 2.3 Generación y Rotación de Sprites (`SpriteManager`)
-- [`SpriteManager`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/infrastructure/rendering/sprite_manager.py) construye proceduralmente el sprite del vehículo con neumáticos, carrocería sombreada según el objeto de valor `Color`, franja deportiva, parabrisas, faros delanteros y luces de freno.
+- [`SpriteManager`](../src/infrastructure/rendering/sprite_manager.py) construye proceduralmente el sprite del vehículo con neumáticos, carrocería sombreada según el objeto de valor `Color`, franja deportiva, parabrisas, faros delanteros y luces de freno.
 - En cada frame se rota el sprite base con `pygame.transform.rotate(base_sprite, -degrees(car.angle.radians))` centrado exactamente en `world_to_screen(car.position)`.
 
 ### 2.4 Minimapa, Overlay LIDAR y HUD (`F3`)

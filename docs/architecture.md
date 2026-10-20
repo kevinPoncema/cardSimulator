@@ -118,51 +118,51 @@ flowchart TD
 ### 2.1 Capa de Dominio (`src/domain/`)
 Es el corazón del proyecto y **no posee ninguna dependencia de frameworks externos** (prohibido importar `pygame` o `pymunk`).
 
-* **Entidades ([`src/domain/entities/`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/entities)):**
-  * [`Car`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/entities/car.py): Entidad vehicular con cinemática, velocidad longitudinal/lateral, ángulo, control de vueltas completadas (`laps_completed`), checkpoints atravesados, monedas recogidas (`coins_collected`), puntuación total (`score`) y estado de colisión.
-  * [`Track`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/entities/track.py): Representación geométrica del circuito con línea central poligonal interpolada, compuertas direccionales de control ([`TrackGate`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/entities/track.py)), zonas de superficie (asfalto, pianos, césped), obstáculos físicos y de terreno, y monedas activas.
-  * [`Coin`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/entities/coin.py): Moneda coleccionable con identificador, posición, radio de interacción y valor en puntos.
-  * [`Obstacle`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/entities/obstacle.py): Obstáculos que pueden ser sólidos y dinámicos (conos de tráfico que rebotan con impulso físico, barreras rígidas de hormigón) o de terreno (baches gigantes que frenan y manchas de aceite que provocan pérdida de tracción).
-  * [`SensorReading`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/entities/sensor_reading.py) y [`SensorRay`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/entities/sensor_reading.py): Paquetes inmutables de telemetría sensorial con 5 rayos equidistantes ($0^\circ, +45^\circ, -45^\circ, +90^\circ, -90^\circ$).
+* **Entidades ([`src/domain/entities/`](../src/domain/entities)):**
+  * [`Car`](../src/domain/entities/car.py): Entidad vehicular con cinemática, velocidad longitudinal/lateral, ángulo, control de vueltas completadas (`laps_completed`), checkpoints atravesados, monedas recogidas (`coins_collected`), puntuación total (`score`) y estado de colisión.
+  * [`Track`](../src/domain/entities/track.py): Representación geométrica del circuito con línea central poligonal interpolada, compuertas direccionales de control ([`TrackGate`](../src/domain/entities/track.py)), zonas de superficie (asfalto, pianos, césped), obstáculos físicos y de terreno, y monedas activas.
+  * [`Coin`](../src/domain/entities/coin.py): Moneda coleccionable con identificador, posición, radio de interacción y valor en puntos.
+  * [`Obstacle`](../src/domain/entities/obstacle.py): Obstáculos que pueden ser sólidos y dinámicos (conos de tráfico que rebotan con impulso físico, barreras rígidas de hormigón) o de terreno (baches gigantes que frenan y manchas de aceite que provocan pérdida de tracción).
+  * [`SensorReading`](../src/domain/entities/sensor_reading.py) y [`SensorRay`](../src/domain/entities/sensor_reading.py): Paquetes inmutables de telemetría sensorial con 5 rayos equidistantes ($0^\circ, +45^\circ, -45^\circ, +90^\circ, -90^\circ$).
 
-* **Objetos de Valor ([`src/domain/value_objects/`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/value_objects)):**
-  * [`Vector2D`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/value_objects/vector2d.py): Aritmética vectorial 2D inmutable (suma, resta, producto escalar `dot`, producto vectorial cruzado `cross`, rotación, magnitud y normalización).
-  * [`Angle`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/value_objects/angle.py): Representación angular normalizada en $[-\pi, \pi]$ con transformaciones a vectores unitarios frontales y laterales.
-  * [`Speed`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/value_objects/speed.py): Magnitud de velocidad con límites de aceleración frontal y marcha atrás.
-  * [`Color`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/value_objects/color.py): Paleta de colores RGB y conversiones a string hexadecimal.
-  * [`CarAction`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/value_objects/car_action.py): Vector de control del conductor (`throttle`, `brake`, `steer`, `handbrake`).
+* **Objetos de Valor ([`src/domain/value_objects/`](../src/domain/value_objects)):**
+  * [`Vector2D`](../src/domain/value_objects/vector2d.py): Aritmética vectorial 2D inmutable (suma, resta, producto escalar `dot`, producto vectorial cruzado `cross`, rotación, magnitud y normalización).
+  * [`Angle`](../src/domain/value_objects/angle.py): Representación angular normalizada en $[-\pi, \pi]$ con transformaciones a vectores unitarios frontales y laterales.
+  * [`Speed`](../src/domain/value_objects/speed.py): Magnitud de velocidad con límites de aceleración frontal y marcha atrás.
+  * [`Color`](../src/domain/value_objects/color.py): Paleta de colores RGB y conversiones a string hexadecimal.
+  * [`CarAction`](../src/domain/value_objects/car_action.py): Vector de control del conductor (`throttle`, `brake`, `steer`, `handbrake`).
 
-* **Interfaces / Puertos ([`src/domain/interfaces/`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/interfaces)):**
-  * [`IPhysicsEngine`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/interfaces/physics_engine.py): Contrato de simulación física paso a paso.
-  * [`ISensor`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/interfaces/sensor.py): Contrato para escanear el entorno espacial.
-  * [`IRenderer`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/interfaces/renderer.py): Contrato de renderizado visual.
-  * [`IInputController`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/interfaces/input_controller.py): Contrato para proveedores de acción (humanos, heurísticos o redes neuronales).
-  * [`ITelemetryProvider`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/interfaces/telemetry_provider.py): Contrato de sólo lectura de estado vectorial.
-  * [`IControllable`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/interfaces/controllable.py): Contrato para aplicar comandos de conducción.
+* **Interfaces / Puertos ([`src/domain/interfaces/`](../src/domain/interfaces)):**
+  * [`IPhysicsEngine`](../src/domain/interfaces/physics_engine.py): Contrato de simulación física paso a paso.
+  * [`ISensor`](../src/domain/interfaces/sensor.py): Contrato para escanear el entorno espacial.
+  * [`IRenderer`](../src/domain/interfaces/renderer.py): Contrato de renderizado visual.
+  * [`IInputController`](../src/domain/interfaces/input_controller.py): Contrato para proveedores de acción (humanos, heurísticos o redes neuronales).
+  * [`ITelemetryProvider`](../src/domain/interfaces/telemetry_provider.py): Contrato de sólo lectura de estado vectorial.
+  * [`IControllable`](../src/domain/interfaces/controllable.py): Contrato para aplicar comandos de conducción.
 
 ---
 
 ### 2.2 Capa de Aplicación (`src/application/`)
 Coordina los casos de uso principales:
 
-1. **[`RaceOrchestrator`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/application/race_orchestrator.py):**
+1. **[`RaceOrchestrator`](../src/application/race_orchestrator.py):**
    * Gestiona el bucle de carrera a 60 FPS fijos (`FIXED_DT = 1/60`).
    * Soporta múltiples participantes simultáneos (`num_cars`) organizados en una parrilla de salida escalonada (`compute_grid_spawn_position`).
-   * Valida en cada paso el cruce de las compuertas de la pista ([`TrackGate`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/entities/track.py)):
+   * Valida en cada paso el cruce de las compuertas de la pista ([`TrackGate`](../src/domain/entities/track.py)):
      - Checkpoints obligatorios en orden $1 \to 2 \to 3$.
      - Paso de meta (gate 0) que solo otorga vuelta y punto si se recorrieron todos los checkpoints previos y en el sentido correcto (imposibilita dar media vuelta para sumar vueltas en reversa).
-   * Detecta y procesa la recolección de monedas ([`Track.collect_touched_coins`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/entities/track.py)), reubicándolas de inmediato en nuevos puntos de asfalto alcanzable.
+   * Detecta y procesa la recolección de monedas ([`Track.collect_touched_coins`](../src/domain/entities/track.py)), reubicándolas de inmediato en nuevos puntos de asfalto alcanzable.
    * Coordina el cambio de mapa en caliente sin reiniciar el proceso.
 
-2. **[`TelemetryCollector`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/application/telemetry_collector.py):**
+2. **[`TelemetryCollector`](../src/application/telemetry_collector.py):**
    * Convierte lecturas crudas en el vector normalizado de estado $S \in \mathbb{R}^7$:
      $$S = \left[ \frac{d_0}{R_{\max}}, \frac{d_{45^\circ}}{R_{\max}}, \frac{d_{-45^\circ}}{R_{\max}}, \frac{d_{90^\circ}}{R_{\max}}, \frac{d_{-90^\circ}}{R_{\max}}, \frac{v}{v_{\max}}, \frac{\omega}{\omega_{\max}} \right]$$
 
 3. **Subsistema de Aprendizaje por Refuerzo (`src/application/rl/`):**
-   * [`RewardConfig`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/application/rl/reward_config.py): Carga pesos desde [`config/reward_config.json`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/config/reward_config.json).
-   * [`RewardCalculator`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/application/rl/reward_config.py): Calcula en cada paso recompensas compuestas (avance en sentido de pista, alineación en curvas, bonificación por asfalto, premio por monedas recogidas, checkpoints y vueltas, castigos por baches, aceite, conos, barreras y muros, y penalización progresiva por atasco contra paredes).
-   * [`CarRacingRLEnv`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/application/rl/car_racing_env.py): Entorno compatible con el estándar Gymnasium (`reset()`, `step()`) para ejecución headless de alta velocidad.
-   * [`RLTrainer`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/application/rl/trainer.py): Optimizador genético / CEM-NES (*Natural Evolution Strategies*) que distribuye la evaluación de la población en paralelo mediante `multiprocessing` en todos los núcleos de CPU.
+   * [`RewardConfig`](../src/application/rl/reward_config.py): Carga pesos desde [`config/reward_config.json`](../config/reward_config.json).
+   * [`RewardCalculator`](../src/application/rl/reward_config.py): Calcula en cada paso recompensas compuestas (avance en sentido de pista, alineación en curvas, bonificación por asfalto, premio por monedas recogidas, checkpoints y vueltas, castigos por baches, aceite, conos, barreras y muros, y penalización progresiva por atasco contra paredes).
+   * [`CarRacingRLEnv`](../src/application/rl/car_racing_env.py): Entorno compatible con el estándar Gymnasium (`reset()`, `step()`) para ejecución headless de alta velocidad.
+   * [`RLTrainer`](../src/application/rl/trainer.py): Optimizador genético / CEM-NES (*Natural Evolution Strategies*) que distribuye la evaluación de la población en paralelo mediante `multiprocessing` en todos los núcleos de CPU.
 
 ---
 
@@ -170,30 +170,30 @@ Coordina los casos de uso principales:
 Implementa las interfaces definidas en el dominio utilizando bibliotecas de terceros:
 
 1. **Física (`src/infrastructure/physics/`):**
-   * [`PymunkPhysicsEngine`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/infrastructure/physics/pymunk_physics_engine.py): Espacio de Chipmunk 2D optimizado con árbol espacial (*Spatial Hash*), gestión de colisiones y fricciones.
-   * [`PymunkCarBody`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/infrastructure/physics/pymunk_car_body.py): Cuerpo rígido con ruedas virtuales que calcula fricción lateral desacoplada para lograr conducción arcade asistida, respuesta de volante inmediata y maniobra de reversa natural.
+   * [`PymunkPhysicsEngine`](../src/infrastructure/physics/pymunk_physics_engine.py): Espacio de Chipmunk 2D optimizado con árbol espacial (*Spatial Hash*), gestión de colisiones y fricciones.
+   * [`PymunkCarBody`](../src/infrastructure/physics/pymunk_car_body.py): Cuerpo rígido con ruedas virtuales que calcula fricción lateral desacoplada para lograr conducción arcade asistida, respuesta de volante inmediata y maniobra de reversa natural.
    * **Obstáculos:** Conos modelados como círculos dinámicos ligeros con rebote elástico; barreras rígidas estáticas; baches y aceite modelados como sensores espaciales de paso sin tope rígido pero con impacto en adherencia.
 
 2. **Sensores LIDAR (`src/infrastructure/sensors/`):**
-   * [`LidarSensor2D`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/infrastructure/sensors/lidar_sensor_2d.py): Utiliza `segment_query_first` de Pymunk sobre una máscara de colisiones que detecta muros, barreras, conos y sensores de obstáculos de terreno, ignorando la forma del propio vehículo.
+   * [`LidarSensor2D`](../src/infrastructure/sensors/lidar_sensor_2d.py): Utiliza `segment_query_first` de Pymunk sobre una máscara de colisiones que detecta muros, barreras, conos y sensores de obstáculos de terreno, ignorando la forma del propio vehículo.
 
 3. **Renderizado (`src/infrastructure/rendering/`):**
-   * [`PygameRenderer`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/infrastructure/rendering/pygame_renderer.py):
+   * [`PygameRenderer`](../src/infrastructure/rendering/pygame_renderer.py):
      - Cámara cenital con interpolación suave (`lerp`) y límites (*clamping*) dentro de las dimensiones del circuito.
      - Dibujado de pista poligonal de alta resolución (asfalto, pianos bicolores, muros exteriores e interiores).
      - Renderizado de monedas doradas brillantes con pulso visual tanto en pista como en minimapa.
      - Minimapa vectorial interactivo con escala automática y proyección de todos los vehículos y monedas.
      - Panel de estado multi-coche en la esquina inferior derecha (`#`, Vuelta, Checkpoints, Monedas y Puntos totales).
      - Modo de depuración visual (`F3`) con rayos LIDAR y vector $S$.
-   * [`SpriteManager`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/infrastructure/rendering/sprite_manager.py): Carga y tintado dinámico de sprites de vehículos según la paleta [`Color`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/value_objects/color.py).
+   * [`SpriteManager`](../src/infrastructure/rendering/sprite_manager.py): Carga y tintado dinámico de sprites de vehículos según la paleta [`Color`](../src/domain/value_objects/color.py).
 
 4. **Controladores de Entrada (`src/infrastructure/input/`):**
-   * [`HumanKeyboardController`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/infrastructure/input/human_keyboard_controller.py): Lee teclado (WASD, Flechas, Espacio).
-   * [`RLAgentController`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/infrastructure/input/rl_agent_controller.py): Conecta la telemetría del coche a la red neuronal cargada desde disco (`.npz`).
-   * [`DummyAiController`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/infrastructure/input/dummy_ai_controller.py): Controlador heurístico de pruebas.
+   * [`HumanKeyboardController`](../src/infrastructure/input/human_keyboard_controller.py): Lee teclado (WASD, Flechas, Espacio).
+   * [`RLAgentController`](../src/infrastructure/input/rl_agent_controller.py): Conecta la telemetría del coche a la red neuronal cargada desde disco (`.npz`).
+   * [`DummyAiController`](../src/infrastructure/input/dummy_ai_controller.py): Controlador heurístico de pruebas.
 
 5. **Red Neuronal e Inferencia (`src/infrastructure/ai/`):**
-   * [`MLPPolicy`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/infrastructure/ai/mlp_policy.py): Red Neuronal Perceptrón Multicapa con arquitectura $7 \to 32 \to 32 \to 2$ y activación $\tanh$. Incluye máquina de estados de seguridad para maniobras de reversa y desatasco ante obstáculos frontales cerrados.
+   * [`MLPPolicy`](../src/infrastructure/ai/mlp_policy.py): Red Neuronal Perceptrón Multicapa con arquitectura $7 \to 32 \to 32 \to 2$ y activación $\tanh$. Incluye máquina de estados de seguridad para maniobras de reversa y desatasco ante obstáculos frontales cerrados.
 
 ---
 
@@ -287,8 +287,8 @@ sequenceDiagram
 ## 5. Extensibilidad y Nuevas Funcionalidades
 
 * **Añadir un nuevo tipo de controlador (ej. modelo PPO / SAC / Red Recurrente LSTM):**
-  Solo es necesario implementar la interfaz [`IInputController`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/src/domain/interfaces/input_controller.py) y recibir `ITelemetryProvider`.
+  Solo es necesario implementar la interfaz [`IInputController`](../src/domain/interfaces/input_controller.py) y recibir `ITelemetryProvider`.
 * **Añadir nuevos circuitos:**
-  Crear un archivo `.json` en `assets/maps/` siguiendo el esquema documentado en [`docs/rendering_and_maps.md`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/docs/rendering_and_maps.md).
+  Crear un archivo `.json` en `assets/maps/` siguiendo el esquema documentado en [`docs/rendering_and_maps.md`](rendering_and_maps.md).
 * **Modificar las recompensas de la IA:**
-  Editar los valores numéricos en [`config/reward_config.json`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/config/reward_config.json) sin compilar ni modificar código fuente.
+  Editar los valores numéricos en [`config/reward_config.json`](../config/reward_config.json) sin compilar ni modificar código fuente.
