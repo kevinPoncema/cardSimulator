@@ -1,11 +1,12 @@
 {
-  "total_training_sec": 29.55,
+  "total_training_sec": 47.88,
   "map_keys": [
     "kart_classic",
     "oval_arena",
-    "pocket_chicane"
+    "pocket_chicane",
+    "retro_grand_prix"
   ],
-  "best_reward": 3899.16,
+  "best_reward": 3674.1,
   "reward_config": {
     "forward_progress_weight": 1.6,
     "curve_alignment_weight": 0.85,
@@ -44,75 +45,75 @@
   "generations": [
     {
       "generation": 1,
-      "mean_reward": 1693.88,
-      "best_gen_reward": 3222.76,
-      "all_time_best_reward": 3222.76,
+      "mean_reward": 1824.33,
+      "best_gen_reward": 3293.92,
+      "all_time_best_reward": 3293.92,
       "best_laps": 2,
-      "best_checkpoints": 12,
-      "elapsed_sec": 3.77
+      "best_checkpoints": 16,
+      "elapsed_sec": 5.93
     },
     {
       "generation": 2,
-      "mean_reward": 1595.85,
-      "best_gen_reward": 3809.54,
-      "all_time_best_reward": 3809.54,
+      "mean_reward": 1388.47,
+      "best_gen_reward": 3504.24,
+      "all_time_best_reward": 3504.24,
       "best_laps": 2,
-      "best_checkpoints": 13,
-      "elapsed_sec": 3.25
+      "best_checkpoints": 15,
+      "elapsed_sec": 6.13
     },
     {
       "generation": 3,
-      "mean_reward": 1820.98,
-      "best_gen_reward": 3422.38,
-      "all_time_best_reward": 3809.54,
+      "mean_reward": 2245.41,
+      "best_gen_reward": 3258.48,
+      "all_time_best_reward": 3504.24,
       "best_laps": 2,
-      "best_checkpoints": 12,
-      "elapsed_sec": 3.77
+      "best_checkpoints": 16,
+      "elapsed_sec": 6.64
     },
     {
       "generation": 4,
-      "mean_reward": 2421.95,
-      "best_gen_reward": 3596.53,
-      "all_time_best_reward": 3809.54,
+      "mean_reward": 1966.69,
+      "best_gen_reward": 3487.3,
+      "all_time_best_reward": 3504.24,
       "best_laps": 2,
-      "best_checkpoints": 11,
-      "elapsed_sec": 3.81
+      "best_checkpoints": 15,
+      "elapsed_sec": 5.88
     },
     {
       "generation": 5,
-      "mean_reward": 2510.05,
-      "best_gen_reward": 3725.44,
-      "all_time_best_reward": 3809.54,
+      "mean_reward": 2513.81,
+      "best_gen_reward": 3594.85,
+      "all_time_best_reward": 3594.85,
       "best_laps": 2,
-      "best_checkpoints": 13,
-      "elapsed_sec": 3.92
+      "best_checkpoints": 16,
+      "elapsed_sec": 6.38
     },
     {
       "generation": 6,
-      "mean_reward": 2103.33,
-      "best_gen_reward": 3899.16,
-      "all_time_best_reward": 3899.16,
+      "mean_reward": 2522.34,
+      "best_gen_reward": 3471.88,
+      "all_time_best_reward": 3594.85,
       "best_laps": 2,
-      "best_checkpoints": 12,
-      "elapsed_sec": 3.41
+      "best_checkpoints": 16,
+      "elapsed_sec": 5.65
     },
     {
       "generation": 7,
-      "mean_reward": 2695.43,
-      "best_gen_reward": 3859.13,
-      "all_time_best_reward": 3899.16,
+      "mean_reward": 2157.21,
+      "best_gen_reward": 3674.1,
+      "all_time_best_reward": 3674.1,
       "best_laps": 2,
-      "best_checkpoints": 12,
-      "elapsed_sec": 4.12
+      "best_checkpoints": 15,
+      "elapsed_sec": 5.72
     },
     {
       "generation": 8,
-      "mean_reward": 1988.6,
-      "best_gen_reward": 3319.49,
-      "all_time_best_reward": 3899.16,
+      "mean_reward": 2669.75,
+      "best_gen_reward": 3564.25,
+      "all_time_best_reward": 3674.1,
       "best_laps": 2,
-      "best_checkpoints": 12,
-      "elapsed_sec": 3.48
+      "best_checkpoints": 17,
+      "elapsed_sec": 5.55
     }
   ]
 }
