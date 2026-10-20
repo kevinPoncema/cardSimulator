@@ -1,0 +1,26 @@
+{
+  "name": "3. Canyon Drift Circuit (Curvas Enlazadas)",
+  "description": "Circuito técnico con curvas en S amplias ideal para usar el freno de mano (Espacio).",
+  "width": 3400.0,
+  "height": 2400.0,
+  "asphalt_half_width": 115.0,
+  "kerb_width": 18.0,
+  "wall_half_width": 168.0,
+  "subdivisions_per_segment": 12,
+  "start_index": 12,
+  "control_points": [
+    [850.0, 1960.0],
+    [1650.0, 1980.0],
+    [2550.0, 1920.0],
+    [2980.0, 1520.0],
+    [2600.0, 1080.0],
+    [2950.0, 620.0],
+    [2400.0, 380.0],
+    [1750.0, 680.0],
+    [1250.0, 380.0],
+    [520.0, 520.0],
+    [440.0, 1120.0],
+    [780.0, 1480.0],
+    [450.0, 1820.0]
+  ]
+}

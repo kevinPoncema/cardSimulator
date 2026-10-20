@@ -1,0 +1,25 @@
+{
+  "name": "1. Retro Grand Prix (Clásico Amplio)",
+  "description": "Circuito equilibrado de gran escala con rectas largas y curvas suaves.",
+  "width": 3200.0,
+  "height": 2200.0,
+  "asphalt_half_width": 115.0,
+  "kerb_width": 18.0,
+  "wall_half_width": 165.0,
+  "subdivisions_per_segment": 12,
+  "start_index": 12,
+  "control_points": [
+    [950.0, 1800.0],
+    [1600.0, 1800.0],
+    [2350.0, 1780.0],
+    [2800.0, 1480.0],
+    [2780.0, 820.0],
+    [2400.0, 420.0],
+    [1820.0, 460.0],
+    [1480.0, 720.0],
+    [1050.0, 430.0],
+    [480.0, 560.0],
+    [420.0, 1200.0],
+    [580.0, 1680.0]
+  ]
+}

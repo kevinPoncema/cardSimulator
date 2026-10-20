@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simulador-carreras-lidar-2d"
+version = "1.0.0"
+description = "Simulador de Carreras 2D con Telemetría LIDAR (DDD + SOLID + Pymunk + Pygame-CE)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pygame-ce==2.5.8",
+    "pymunk==7.3.1",
+    "numpy==2.5.4",
+    "pytest==9.1.1",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

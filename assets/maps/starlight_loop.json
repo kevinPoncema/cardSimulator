@@ -1,0 +1,25 @@
+{
+  "name": "4. Starlight Grand Loop (Trébol Panorámico)",
+  "description": "Circuito panorámico con horquillas abiertas y rectas diagonales rápidas.",
+  "width": 3200.0,
+  "height": 2400.0,
+  "asphalt_half_width": 120.0,
+  "kerb_width": 18.0,
+  "wall_half_width": 172.0,
+  "subdivisions_per_segment": 12,
+  "start_index": 12,
+  "control_points": [
+    [1000.0, 1950.0],
+    [1650.0, 1950.0],
+    [2400.0, 1950.0],
+    [2820.0, 1600.0],
+    [2500.0, 1150.0],
+    [2820.0, 700.0],
+    [2350.0, 400.0],
+    [1600.0, 620.0],
+    [850.0, 400.0],
+    [420.0, 750.0],
+    [720.0, 1220.0],
+    [420.0, 1680.0]
+  ]
+}

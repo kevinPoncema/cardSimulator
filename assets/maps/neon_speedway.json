@@ -1,0 +1,25 @@
+{
+  "name": "2. Super Oval & Chicane Speedway (Alta Velocidad)",
+  "description": "Anillo de máxima velocidad con grandes curvones para ir a fondo y derrapar.",
+  "width": 3400.0,
+  "height": 2200.0,
+  "asphalt_half_width": 130.0,
+  "kerb_width": 20.0,
+  "wall_half_width": 185.0,
+  "subdivisions_per_segment": 12,
+  "start_index": 12,
+  "control_points": [
+    [900.0, 1780.0],
+    [1700.0, 1800.0],
+    [2550.0, 1760.0],
+    [3000.0, 1400.0],
+    [3000.0, 800.0],
+    [2550.0, 420.0],
+    [1900.0, 400.0],
+    [1650.0, 580.0],
+    [1350.0, 400.0],
+    [750.0, 440.0],
+    [400.0, 850.0],
+    [420.0, 1450.0]
+  ]
+}
