@@ -55,6 +55,7 @@ class Car(IControllable):
     next_checkpoint_id: int = 1
     checkpoints_passed_in_lap: int = 0
     is_wrong_way: bool = False
+    active_collisions: set[str] = field(default_factory=set)
 
     def apply_action(self, action: CarAction) -> None:
         """Registra la intención de control del piloto/IA para el paso físico actual."""
@@ -67,6 +68,7 @@ class Car(IControllable):
         self.next_checkpoint_id = 1
         self.checkpoints_passed_in_lap = 0
         self.is_wrong_way = False
+        self.active_collisions.clear()
         if reset_score:
             self.score = 0
 

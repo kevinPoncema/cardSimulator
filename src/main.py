@@ -22,6 +22,7 @@ from src.domain.interfaces.input_controller import IInputController
 from src.domain.value_objects.color import CAR_PALETTE, Color
 from src.infrastructure.input.dummy_ai_controller import DummyAiController
 from src.infrastructure.input.human_keyboard_controller import HumanKeyboardController
+from src.infrastructure.input.rl_agent_controller import RLAgentController
 from src.infrastructure.physics.pymunk_physics_engine import PymunkPhysicsEngine
 from src.infrastructure.rendering.pygame_renderer import PygameRenderer
 from src.infrastructure.sensors.lidar_sensor_2d import LidarSensor2D
@@ -46,16 +47,18 @@ def load_all_tracks() -> dict[str, Track]:
 
 
 def build_orchestrator(
-    map_key: str = "retro_grand_prix",
+    map_key: str = "kart_classic",
     car_color: Color | None = None,
     controller_type: str = "human",
+    model_path: str | Path | None = None,
+    vs_ai: bool = False,
     lidar_max_range: float = DEFAULT_LIDAR_MAX_RANGE,
     headless: bool = False,
     debug_mode: bool = True,
 ) -> RaceOrchestrator:
     """Ensambla las dependencias de dominio, aplicación e infraestructura (DIP)."""
     available_tracks = load_all_tracks()
-    chosen_map_key = map_key if map_key in available_tracks else "retro_grand_prix"
+    chosen_map_key = map_key if map_key in available_tracks else "kart_classic"
     track = available_tracks[chosen_map_key]
 
     physics_engine = PymunkPhysicsEngine()
@@ -83,6 +86,12 @@ def build_orchestrator(
         current_map_key=chosen_map_key,
     )
 
+    default_model_file = (
+        Path(model_path)
+        if model_path is not None
+        else (PROJECT_ROOT / "models" / "rl_agent_v1.npz")
+    )
+
     chosen_color = car_color or CAR_PALETTE["crimson_red"]
     player_car = Car(
         car_id="car_player_1",
@@ -93,7 +102,14 @@ def build_orchestrator(
     )
 
     controller: IInputController
-    if controller_type == "dummy_ai":
+    if controller_type == "rl_ai":
+        controller = RLAgentController(
+            telemetry_provider=telemetry_collector,
+            car_id=player_car.car_id,
+            model_path=default_model_file,
+            handle_window_events=True,
+        )
+    elif controller_type == "dummy_ai":
         controller = DummyAiController(
             telemetry_provider=telemetry_collector,
             car_id=player_car.car_id,
@@ -102,13 +118,32 @@ def build_orchestrator(
         controller = HumanKeyboardController()
 
     orchestrator.add_participant(player_car, controller)
+
+    # Modo carrera contra la Red Neuronal entrenada (--vs-ai)
+    if vs_ai:
+        offset_normal = track.start_angle.to_right_vector() * 36.0
+        rival_car = Car(
+            car_id="car_rl_rival",
+            position=track.start_position + offset_normal,
+            angle=track.start_angle,
+            color=CAR_PALETTE["electric_blue"],
+            config=CarConfig(),
+        )
+        rival_controller = RLAgentController(
+            telemetry_provider=telemetry_collector,
+            car_id=rival_car.car_id,
+            model_path=default_model_file,
+            handle_window_events=False,
+        )
+        orchestrator.add_participant(rival_car, rival_controller)
+
     return orchestrator
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """Analiza argumentos de línea de comandos para configurar la ejecución."""
     parser = argparse.ArgumentParser(
-        description="Simulador de Carreras 2D con Telemetría LIDAR (Pymunk + Pygame-CE)"
+        description="Simulador de Carreras 2D con Telemetría LIDAR y Agente RL (Pymunk + Pygame-CE)"
     )
     parser.add_argument(
         "--map",
@@ -124,9 +159,20 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--controller",
-        choices=["human", "dummy_ai"],
+        choices=["human", "rl_ai", "dummy_ai"],
         default="human",
-        help="Controlador del vehículo principal (por defecto: human).",
+        help="Controlador del vehículo principal: human, rl_ai (Red Neuronal entrenada) o dummy_ai.",
+    )
+    parser.add_argument(
+        "--model-path",
+        type=str,
+        default=str(PROJECT_ROOT / "models" / "rl_agent_v1.npz"),
+        help="Ruta al archivo .npz de la red neuronal entrenada.",
+    )
+    parser.add_argument(
+        "--vs-ai",
+        action="store_true",
+        help="Añade un segundo coche rival controlado por la Red Neuronal RL entrenada.",
     )
     parser.add_argument(
         "--lidar-range",
@@ -164,6 +210,8 @@ def main(argv: list[str] | None = None) -> int:
         map_key=args.map,
         car_color=car_color,
         controller_type=args.controller,
+        model_path=args.model_path,
+        vs_ai=args.vs_ai,
         lidar_max_range=args.lidar_range,
         headless=args.headless,
         debug_mode=True,

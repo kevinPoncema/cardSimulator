@@ -7,31 +7,41 @@ Núcleo jugable de un simulador de carreras 2D con vista cenital (*top-down*) en
 ## 1. Estructura del Proyecto y Documentación
 
 ```text
+├── config/
+│   └── reward_config.json        # Pesos de recompensas y castigos fácilmente editables
 ├── docs/
 │   ├── system_design.md          # Diagramas de clases (Mermaid), contratos SOLID y secuencia
 │   ├── physics_model.md          # Modelo físico arcade asistido, derrape y superficies
 │   ├── rendering_and_maps.md     # Cómo funciona el renderizado, la cámara y la creación de mapas
-│   └── lidar_spec.md             # Especificación matemática del LIDAR y vector de estado S
+│   ├── lidar_spec.md             # Especificación matemática del LIDAR y vector de estado S
+│   └── rl_training_guide.md      # Guía de entrenamiento RL, red neuronal y ajuste de recompensas
+├── models/
+│   ├── rl_agent_v1.npz           # Pesos de la Red Neuronal entrenada (Versión 1)
+│   └── training_history.json     # Métricas por generación del entrenamiento RL
 ├── src/
 │   ├── domain/                   # Lógica pura del negocio (sin dependencias de Pygame/Pymunk)
-│   │   ├── entities/             # Car, CarConfig, Track, SensorReading, SensorRay
+│   │   ├── entities/             # Car, CarConfig, Track, Obstacle, SensorReading, SensorRay
 │   │   ├── value_objects/        # Vector2D, Speed, Angle, Color, CarAction
 │   │   └── interfaces/           # IPhysicsEngine, ISensor, IRenderer, IInputController, ITelemetryProvider, IControllable
 │   ├── infrastructure/           # Adaptadores técnicos
+│   │   ├── ai/                   # MLPPolicy (Red Neuronal Perceptrón Multicapa)
 │   │   ├── physics/              # PymunkPhysicsEngine, PymunkCarBody
 │   │   ├── sensors/              # LidarSensor2D (usando segment_query de Pymunk)
 │   │   ├── rendering/            # PygameRenderer (cámara + minimapa), SpriteManager
-│   │   └── input/                # HumanKeyboardController, DummyAiController
-│   ├── application/              # Casos de uso y orquestación del bucle principal
+│   │   └── input/                # HumanKeyboardController, RLAgentController, DummyAiController
+│   ├── application/              # Casos de uso, bucle principal y Aprendizaje por Refuerzo
+│   │   ├── rl/                   # RewardConfig, RewardCalculator, CarRacingRLEnv, RLTrainer
 │   │   ├── race_orchestrator.py
 │   │   └── telemetry_collector.py
+│   ├── train_agent.py            # Script de entrenamiento local multinúcleo de la Red Neuronal
 │   └── main.py                   # Punto de entrada / Raíz de composición (Composition Root)
 ├── assets/
 │   ├── sprites/                  # Sprites PNG generados para la paleta de colores de vehículos
-│   └── maps/                     # 4 circuitos de gran tamaño en formato JSON
+│   └── maps/                     # 12 circuitos variados en formato JSON
 ├── tests/
 │   ├── test_domain_car.py        # Tests de dominio, objetos de valor, física y pureza DIP
-│   └── test_lidar_calculations.py # Tests de transformaciones local-a-global y normalización S
+│   ├── test_lidar_calculations.py # Tests de transformaciones local-a-global y normalización S
+│   └── test_rl_training.py       # Tests de recompensas, penalizaciones, entorno RL y red neuronal
 ├── pyproject.toml
 ├── requirements.txt
 └── README.md
@@ -98,7 +108,24 @@ El simulador incluye **12 circuitos variados organizados en 3 categorías** con 
 
 ---
 
-## 3. Ejecución de Pruebas Unitarias
+## 3. Entrenamiento por Refuerzo (RL) y Conducción Autónoma
+
+Toda la configuración de recompensas y penalizaciones es editable en [`config/reward_config.json`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/config/reward_config.json) y está documentada en [`docs/rl_training_guide.md`](file:///home/kevin/Documentos/personal/pythonZZZ/simulador%20carritos%20fuuui/docs/rl_training_guide.md).
+
+```bash
+# 1. Entrenar la Red Neuronal en tu procesador (guarda en models/rl_agent_v1.npz)
+.venv/bin/python3 src/train_agent.py --maps kart_classic pocket_chicane --generations 12 --population 20 --workers 8
+
+# 2. Ver a la Red Neuronal entrenada conducir y esquivar obstáculos
+.venv/bin/python3 src/main.py --controller rl_ai --map kart_classic
+
+# 3. Competir Tú (Humano) contra la Red Neuronal entrenada
+.venv/bin/python3 src/main.py --vs-ai --map retro_grand_prix
+```
+
+---
+
+## 4. Ejecución de Pruebas Unitarias
 
 ```bash
 .venv/bin/pytest tests/ -v
