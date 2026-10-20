@@ -1,4 +1,4 @@
-"""Entidad de dominio Car con validación de vueltas completas, sentido de giro y puntuación."""
+"""Entidad de dominio Car con validación de vueltas completas, monedas, sentido y desatasco."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ class CarConfig:
     """Parámetros dinámicos arcade configurables de un vehículo.
 
     Ajustados por defecto para ofrecer un manejo ágil, predecible y divertido
-    para jugadores humanos (alta respuesta, giro estable y derrape asistido).
+    para jugadores humanos y agentes RL.
     """
 
     drive_force: float = 1350.0
@@ -37,7 +37,7 @@ class CarConfig:
 
 @dataclass
 class Car(IControllable):
-    """Entidad de dominio que representa un vehículo de carreras 2D y su estado de puntuación."""
+    """Entidad de dominio que representa un vehículo de carreras 2D y su estado de carrera."""
 
     car_id: str
     position: Vector2D = field(default_factory=lambda: Vector2D(0.0, 0.0))
@@ -50,12 +50,20 @@ class Car(IControllable):
     current_surface_name: str = "asphalt"
     current_surface_friction: float = 1.0
 
-    # Estado de puntuación y validación de vuelta completa en sentido correcto
+    # Estado de puntuación, vueltas, monedas y colisiones
     score: int = 0
+    laps_completed: int = 0
+    coins_collected: int = 0
     next_checkpoint_id: int = 1
     checkpoints_passed_in_lap: int = 0
     is_wrong_way: bool = False
     active_collisions: set[str] = field(default_factory=set)
+    stuck_against_wall_steps: int = 0
+
+    @property
+    def current_lap(self) -> int:
+        """Retorna el número de vuelta en la que va el coche actualmente (1-indexed)."""
+        return self.laps_completed + 1
 
     def apply_action(self, action: CarAction) -> None:
         """Registra la intención de control del piloto/IA para el paso físico actual."""
@@ -63,26 +71,27 @@ class Car(IControllable):
             raise TypeError("Se esperaba una instancia de CarAction.")
         self.current_action = action
 
+    def collect_coin(self, points: int = 1) -> None:
+        """Registra la recolección de una moneda en la pista y suma sus puntos."""
+        self.coins_collected += 1
+        self.score += int(points)
+
     def reset_lap_progress(self, reset_score: bool = False) -> None:
         """Reinicia el progreso de sectores de la vuelta actual (y opcionalmente los puntos)."""
         self.next_checkpoint_id = 1
         self.checkpoints_passed_in_lap = 0
         self.is_wrong_way = False
         self.active_collisions.clear()
+        self.stuck_against_wall_steps = 0
         if reset_score:
             self.score = 0
+            self.laps_completed = 0
+            self.coins_collected = 0
 
     def record_gate_crossing(
         self, gate_id: int, is_forward: bool, total_gates: int = 4
     ) -> bool:
-        """Valida el cruce de un checkpoint o línea de meta y actualiza el contador de puntos.
-
-        Reglas de validación:
-        1. Para sumar +1 punto al cruzar la meta (gate_id == 0), el coche debe cruzarla en el
-           sentido correcto (is_forward == True) Y haber cruzado previamente en orden todos los
-           checkpoints intermedios de la vuelta (1 -> 2 -> 3).
-        2. Si el coche da media vuelta y cruza hacia atrás (is_forward == False) el último
-           checkpoint que había superado, se descuenta ese progreso para impedir trampas.
+        """Valida el cruce de un checkpoint o línea de meta y actualiza vueltas y puntos.
 
         Returns:
             True si se acaba de completar una vuelta válida y se sumó +1 punto; False en otro caso.
@@ -93,8 +102,9 @@ class Car(IControllable):
         if is_forward:
             if gate_id == self.next_checkpoint_id:
                 if gate_id == 0 and self.checkpoints_passed_in_lap == total_gates - 1:
-                    # ¡Vuelta completa válida en el sentido correcto! +1 punto
+                    # ¡Vuelta completa válida en el sentido correcto! +1 punto y +1 vuelta
                     self.score += 1
+                    self.laps_completed += 1
                     self.checkpoints_passed_in_lap = 0
                     self.next_checkpoint_id = 1
                     return True

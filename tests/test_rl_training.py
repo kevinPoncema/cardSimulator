@@ -170,3 +170,108 @@ def test_mlp_policy_and_rl_environment_integration(tmp_path: Path) -> None:
         assert isinstance(reward, float)
         if terminated or truncated:
             break
+
+
+def test_random_coins_spawn_only_on_reachable_asphalt_and_grant_points() -> None:
+    """Verifica que las monedas se generen solo en asfalto alcanzable y sumen puntos en el juego y en RL."""
+    track = Track.create_default_circuit("pocket_chicane")
+    track.spawn_random_coins(count=15, seed=123)
+    assert len(track.coins) == 15
+
+    for coin in track.coins:
+        assert track.is_valid_reachable_coin_spot(coin.position)
+        assert track.get_surface_at(coin.position).name == "asphalt"
+
+    target_coin = track.coins[0]
+    old_pos = target_coin.position
+    car = Car(car_id="coin_collector", position=old_pos, angle=track.start_angle)
+    collected = track.collect_touched_coins(car.position, collection_radius=19.0)
+    assert len(collected) >= 1
+
+    for c_obj in collected:
+        car.collect_coin(c_obj.value)
+    assert car.coins_collected == len(collected)
+    assert car.score == sum(c.value for c in collected)
+    # La moneda recolectada debe haberse reubicado en una nueva posición válida
+    assert track.is_valid_reachable_coin_spot(target_coin.position)
+
+    cfg = RewardConfig()
+    calc = RewardCalculator(cfg)
+    reading = _make_dummy_reading(car, distance=250.0)
+    reward_coin, _, bd_coin = calc.compute_step_reward(
+        car=car,
+        track=track,
+        reading=reading,
+        gate_crossings=[],
+        lap_completed=False,
+        checkpoint_advanced=False,
+        coins_collected_count=1,
+    )
+    assert bd_coin["coin_collected"] == cfg.coin_collected_reward
+    assert reward_coin > 30.0
+
+
+def test_multi_car_orchestrator_parameter() -> None:
+    """Verifica que se pueda pasar --num-cars para instanciar múltiples coches en la parrilla."""
+    from src.main import build_orchestrator
+
+    orch = build_orchestrator(
+        map_key="pocket_chicane",
+        controller_type="rl_ai",
+        num_cars=3,
+        headless=True,
+    )
+    try:
+        assert len(orch.cars) == 3
+        for idx, car in enumerate(orch.cars):
+            assert car.current_lap == 1
+            assert car.coins_collected == 0
+        assert orch.step_simulation(1.0 / 60.0) is True
+        orch.render_frame(fps=60.0)
+    finally:
+        orch.shutdown()
+
+
+def test_wall_stuck_penalty_and_reverse_escape_behavior() -> None:
+    """Verifica la penalización progresiva por quedarse atascado contra un muro y la maniobra de reversa."""
+    cfg = RewardConfig()
+    calc = RewardCalculator(cfg)
+    track = Track.create_default_circuit("pocket_chicane")
+    car = Car(car_id="wall_stuck_car", position=track.start_position, angle=track.start_angle)
+    car.active_collisions = {"wall"}
+    car.velocity = Vector2D(0.0, 0.0)
+    blocked_reading = _make_dummy_reading(car, distance=25.0)
+
+    # Paso 1 atascado contra la pared
+    r1, term1, bd1 = calc.compute_step_reward(
+        car=car,
+        track=track,
+        reading=blocked_reading,
+        gate_crossings=[],
+        lap_completed=False,
+        checkpoint_advanced=False,
+    )
+    assert term1 is False
+    assert "wall_stuck_penalty" in bd1
+    assert bd1["wall_stuck_penalty"] < 0.0
+
+    # Si retrocede para desatascarse del muro frontal, recibe reverse_escape_bonus
+    car.active_collisions.clear()
+    backward_vec = track.start_angle.to_unit_vector() * -80.0
+    car.velocity = backward_vec
+    r_esc, _, bd_esc = calc.compute_step_reward(
+        car=car,
+        track=track,
+        reading=blocked_reading,
+        gate_crossings=[],
+        lap_completed=False,
+        checkpoint_advanced=False,
+    )
+    assert bd_esc.get("reverse_escape_bonus", 0.0) == cfg.reverse_escape_reward
+
+    # Verifica que MLPPolicy active reversa cuando d_0 indica bloqueo frontal inminente
+    policy = MLPPolicy.create_warm_start()
+    blocked_obs = np.array([0.05, 0.85, 0.20, 0.90, 0.25, 0.02, 0.0], dtype=np.float32)
+    escape_action = policy.predict_car_action(blocked_obs)
+    assert escape_action.brake > 0.5
+    assert escape_action.throttle == 0.0

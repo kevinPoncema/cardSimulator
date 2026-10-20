@@ -57,6 +57,7 @@ def _evaluate_candidate_worker(args: tuple[np.ndarray, tuple[int, ...], list[str
     total_checkpoints = 0
 
     for t_idx in range(len(tracks)):
+        policy.reset_state()
         obs, _ = env.reset(options={"track_index": t_idx})
         done = False
         while not done:
@@ -65,7 +66,7 @@ def _evaluate_candidate_worker(args: tuple[np.ndarray, tuple[int, ...], list[str
             total_reward += r
             if terminated or truncated:
                 done = True
-                total_laps += int(info.get("score", 0))
+                total_laps += int(info.get("laps_completed", info.get("score", 0)))
                 total_checkpoints += int(info.get("total_checkpoints", 0))
 
     n_tracks = max(1, len(tracks))

@@ -1,4 +1,4 @@
-"""Renderizador 2D en Pygame-CE con soporte para obstáculos dinámicos, baches, aceite y 12 mapas."""
+"""Renderizador 2D en Pygame-CE con soporte para monedas, tabla de coches en esquina, obstáculos y 12 mapas."""
 
 from __future__ import annotations
 
@@ -17,13 +17,13 @@ from src.infrastructure.rendering.sprite_manager import SpriteManager
 
 
 class PygameRenderer(IRenderer):
-    """Implementación de IRenderer sobre Pygame-CE con renderizado de obstáculos y 12 mapas."""
+    """Implementación de IRenderer sobre Pygame-CE con renderizado de monedas, obstáculos y multi-coche."""
 
     def __init__(
         self,
         width: int = 1280,
         height: int = 800,
-        title: str = "Simulador de Carreras 2D - 12 Circuitos y Obstáculos Interactivos",
+        title: str = "Simulador de Carreras 2D - 12 Circuitos, Monedas, Obstáculos y RL",
         headless: bool = False,
     ) -> None:
         self.viewport_width = int(width)
@@ -116,12 +116,10 @@ class PygameRenderer(IRenderer):
         for obs in track.obstacles:
             pos_int = obs.position.to_int_tuple()
             if obs.kind == ObstacleType.POTHOLE:
-                # Bache gigante: Cráter oscuro con borde agrietado
                 pygame.draw.circle(surf, (32, 34, 40), pos_int, int(obs.radius) + 3)
                 pygame.draw.circle(surf, (20, 22, 26), pos_int, int(obs.radius))
                 pygame.draw.circle(surf, (12, 14, 18), pos_int, int(obs.radius * 0.55))
             elif obs.kind == ObstacleType.OIL_SLICK:
-                # Mancha de aceite: Charco iridiscente brillante
                 pygame.draw.circle(surf, (22, 16, 32), pos_int, int(obs.radius))
                 pygame.draw.circle(surf, (45, 25, 60), pos_int, int(obs.radius * 0.70))
                 pygame.draw.circle(surf, (65, 40, 85), (pos_int[0] - 4, pos_int[1] - 4), int(obs.radius * 0.35))
@@ -197,6 +195,24 @@ class PygameRenderer(IRenderer):
             int(round(world_pt.y - self.camera_pos.y)),
         )
 
+    def _draw_coins(self, track: Track) -> None:
+        """Dibuja las monedas doradas coleccionables sobre el asfalto."""
+        for coin in track.coins:
+            if not coin.active:
+                continue
+            sx, sy = self.world_to_screen(coin.position)
+            r = int(coin.radius)
+            # Sombra exterior, borde dorado intenso, centro brillante y destello vertical
+            pygame.draw.circle(self.screen, (30, 25, 10), (sx, sy), r + 2)
+            pygame.draw.circle(self.screen, (245, 185, 15), (sx, sy), r)
+            pygame.draw.circle(self.screen, (255, 235, 95), (sx, sy), int(r * 0.72))
+            pygame.draw.rect(
+                self.screen,
+                (210, 140, 10),
+                (sx - 2, sy - int(r * 0.45), 4, int(r * 0.9)),
+                border_radius=1,
+            )
+
     def _draw_active_checkpoint_highlight(self, track: Track, car: Car) -> None:
         """Resalta en pantalla el siguiente checkpoint o la meta."""
         if not track.gates:
@@ -232,7 +248,6 @@ class PygameRenderer(IRenderer):
             screen_pos = self.world_to_screen(pos)
 
             if obs.kind == ObstacleType.CONE:
-                # Cono de tráfico naranja brillante con anillo blanco
                 r = int(obs.radius)
                 pygame.draw.circle(self.screen, (35, 38, 45), screen_pos, r + 2)
                 pygame.draw.circle(self.screen, (255, 95, 15), screen_pos, r)
@@ -240,10 +255,8 @@ class PygameRenderer(IRenderer):
                 pygame.draw.circle(self.screen, (255, 120, 30), screen_pos, int(r * 0.35))
 
             elif obs.kind == ObstacleType.BARRIER:
-                # Barrera rectangular con franjas diagonales de señalización
                 surf_b = pygame.Surface((int(obs.width), int(obs.height)), pygame.SRCALPHA)
                 surf_b.fill((215, 45, 45))
-                # Franjas blancas
                 stripe_w = 8
                 for sx in range(0, int(obs.width), stripe_w * 2):
                     pygame.draw.rect(surf_b, (245, 245, 250), (sx, 0, stripe_w, int(obs.height)))
@@ -271,7 +284,7 @@ class PygameRenderer(IRenderer):
             pygame.draw.circle(self.screen, (255, 255, 255), emitter_pos, 4)
 
     def _draw_minimap(self, track: Track, cars: list[Car]) -> None:
-        """Dibuja el minimapa en la esquina superior derecha."""
+        """Dibuja el minimapa en la esquina superior derecha con monedas y coches."""
         if self._minimap_surface_cache is None:
             return
         mm_w, mm_h = self._minimap_surface_cache.get_size()
@@ -282,6 +295,13 @@ class PygameRenderer(IRenderer):
 
         scale_x = mm_w / max(1.0, track.width)
         scale_y = mm_h / max(1.0, track.height)
+
+        # Monedas activas en el minimapa
+        for coin in track.coins:
+            if coin.active:
+                cx_m = mm_x + int(coin.position.x * scale_x)
+                cy_m = mm_y + int(coin.position.y * scale_y)
+                pygame.draw.circle(self.screen, (255, 225, 40), (cx_m, cy_m), 2)
 
         # Resaltar siguiente checkpoint en minimapa
         if cars and track.gates:
@@ -312,9 +332,57 @@ class PygameRenderer(IRenderer):
         )
         self.screen.blit(label_surf, (mm_x - 38, mm_y + mm_h + 6))
 
+    def _draw_corner_cars_panel(self, cars: list[Car], total_gates: int) -> None:
+        """Dibuja en la esquina inferior derecha los datos en vivo de todos los coches (Vuelta, Monedas, Puntos)."""
+        if not cars:
+            return
+        total_cp = max(1, total_gates - 1)
+        row_h = 26
+        panel_w = 365
+        panel_h = 40 + len(cars) * row_h
+        panel_x = self.viewport_width - panel_w - 14
+        panel_y = self.viewport_height - panel_h - 14
+
+        panel = pygame.Surface((panel_w, panel_h), pygame.SRCALPHA)
+        panel.fill((12, 18, 28, 230))
+        pygame.draw.rect(panel, (90, 185, 250), (0, 0, panel_w, panel_h), 2, border_radius=6)
+        self.screen.blit(panel, (panel_x, panel_y))
+
+        header = self.font_title.render(
+            f"ESTADO DE COCHES ({len(cars)} EN PISTA)", True, (255, 225, 90)
+        )
+        self.screen.blit(header, (panel_x + 12, panel_y + 8))
+
+        y = panel_y + 34
+        for idx, car in enumerate(cars):
+            # Insignia de color del vehículo
+            pygame.draw.rect(
+                self.screen,
+                car.color.to_rgb_tuple(),
+                (panel_x + 12, y + 2, 14, 14),
+                border_radius=3,
+            )
+            pygame.draw.rect(
+                self.screen,
+                (240, 240, 245),
+                (panel_x + 12, y + 2, 14, 14),
+                1,
+                border_radius=3,
+            )
+
+            line_str = (
+                f"#{idx + 1} | Vuelta:{car.current_lap:2d} "
+                f"| CP:{car.checkpoints_passed_in_lap}/{total_cp} "
+                f"| Monedas:{car.coins_collected:2d} "
+                f"| Pts:{car.score:3d}"
+            )
+            row_surf = self.font_small.render(line_str, True, (225, 238, 255))
+            self.screen.blit(row_surf, (panel_x + 32, y + 1))
+            y += row_h
+
     def _draw_score_panel(self, car: Car, total_gates: int) -> None:
-        """Dibuja el marcador de Puntos y progreso de sectores."""
-        box_w, box_h = 330, 68
+        """Dibuja el marcador central de Puntos, Vuelta actual, Monedas y progreso de sectores."""
+        box_w, box_h = 370, 72
         box_x = (self.viewport_width - box_w) // 2
         box_y = 44
 
@@ -324,21 +392,24 @@ class PygameRenderer(IRenderer):
         pygame.draw.rect(panel, border_col, (0, 0, box_w, box_h), 2, border_radius=8)
         self.screen.blit(panel, (box_x, box_y))
 
-        score_str = f"PUNTOS: {car.score}"
+        score_str = f"PUNTOS: {car.score}  |  VUELTA: {car.current_lap}"
         score_surf = self.font_score.render(score_str, True, (255, 230, 80))
         score_rect = score_surf.get_rect(centerx=box_x + box_w // 2, top=box_y + 8)
         self.screen.blit(score_surf, score_rect)
 
         total_cp = max(1, total_gates - 1)
         if car.checkpoints_passed_in_lap >= total_cp:
-            cp_text = "¡VUELTA LISTA! CRUZA LA META -> +1 PTO"
+            cp_text = f"¡CRUZA LA META! (+1 PTO) | Monedas: {car.coins_collected}"
             cp_color = (100, 255, 140)
         else:
-            cp_text = f"Checkpoints: {car.checkpoints_passed_in_lap} / {total_cp}"
+            cp_text = (
+                f"Checkpoints: {car.checkpoints_passed_in_lap}/{total_cp} "
+                f"| Monedas recogidas: {car.coins_collected}"
+            )
             cp_color = (190, 225, 255)
 
         cp_surf = self.font_small.render(cp_text, True, cp_color)
-        cp_rect = cp_surf.get_rect(centerx=box_x + box_w // 2, top=box_y + 40)
+        cp_rect = cp_surf.get_rect(centerx=box_x + box_w // 2, top=box_y + 42)
         self.screen.blit(cp_surf, cp_rect)
 
         if car.is_wrong_way:
@@ -356,13 +427,14 @@ class PygameRenderer(IRenderer):
     def _draw_hud(
         self,
         track: Track,
-        car: Car,
+        cars: list[Car],
         reading: SensorReading | None,
         obs: np.ndarray | None,
         debug_mode: bool,
         fps: float,
     ) -> None:
-        """Dibuja la barra superior con información de pista y HUD de telemetría."""
+        """Dibuja la barra superior, el marcador, la tabla de esquina y el HUD LIDAR."""
+        car = cars[0]
         top_bar = pygame.Surface((self.viewport_width, 34), pygame.SRCALPHA)
         top_bar.fill((12, 16, 24, 220))
         self.screen.blit(top_bar, (0, 0))
@@ -374,14 +446,14 @@ class PygameRenderer(IRenderer):
             surf_display = "¡MANCHA DE ACEITE!"
 
         status_text = (
-            f"FPS: {fps:3.0f} | Pts: {car.score} | {track.name} [{track.category.upper()}] | "
-            f"Suelo: {surf_display:14s} | Vel: {car.forward_speed():4.0f}px/s | "
-            f"[M/N] Mapa [1-0,-,=] [R] Reset [F3] LIDAR"
+            f"FPS: {fps:3.0f} | Vuelta: {car.current_lap} | Monedas: {car.coins_collected} | "
+            f"{track.name} | Suelo: {surf_display:12s} | [M/N] Mapa [R] Reset [F3] LIDAR"
         )
         txt_surf = self.font_small.render(status_text, True, (230, 240, 250))
         self.screen.blit(txt_surf, (12, 9))
 
         self._draw_score_panel(car, total_gates=len(track.gates))
+        self._draw_corner_cars_panel(cars, total_gates=len(track.gates))
 
         if not debug_mode or obs is None:
             return
@@ -432,9 +504,9 @@ class PygameRenderer(IRenderer):
         drift_state = (
             "DERRAPE ACTIVO (FRENO MANO)"
             if car.current_action.handbrake
-            else ("¡DERRAPE INVOLUNTARIO SOBRE ACEITE!" if car.current_surface_name == "oil" else "AGARRE ARCADE ASISTIDO")
+            else ("¡MANIOBRA REVERSA DESATASCO!" if car.forward_speed() < -10.0 else "AGARRE ARCADE ASISTIDO")
         )
-        drift_color = (255, 175, 60) if (car.current_action.handbrake or car.current_surface_name == "oil") else (140, 230, 180)
+        drift_color = (255, 175, 60) if (car.current_action.handbrake or car.forward_speed() < -10.0) else (140, 230, 180)
         drift_surf = self.font_small.render(drift_state, True, drift_color)
         self.screen.blit(drift_surf, (panel_x + 12, y_offset + 28))
 
@@ -448,7 +520,7 @@ class PygameRenderer(IRenderer):
         fps: float = 60.0,
         dynamic_obstacles: list[tuple[Obstacle, Vector2D, float]] | None = None,
     ) -> None:
-        """Renderiza el mundo visible, obstáculos, coches, LIDAR, minimapa y HUD."""
+        """Renderiza el mundo visible, monedas, obstáculos, coches, LIDAR, minimapa y HUD."""
         if self._track_surface_cache is None or self._cached_track_name != track.name:
             self._track_surface_cache = self._build_track_surface(track)
             self._minimap_surface_cache = self._build_minimap_surface(self._track_surface_cache)
@@ -466,7 +538,8 @@ class PygameRenderer(IRenderer):
         )
         self.screen.blit(self._track_surface_cache, (0, 0), area=cam_rect)
 
-        # Dibujar obstáculos físicos dinámicos (conos y barreras)
+        # Dibujar monedas coleccionables y obstáculos físicos
+        self._draw_coins(track)
         self._draw_physical_obstacles(dynamic_obstacles)
 
         if cars:
@@ -487,7 +560,7 @@ class PygameRenderer(IRenderer):
             primary_car = cars[0]
             self._draw_hud(
                 track=track,
-                car=primary_car,
+                cars=cars,
                 reading=readings.get(primary_car.car_id),
                 obs=observations.get(primary_car.car_id),
                 debug_mode=debug_mode,

@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import json
 import math
+import random
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from src.domain.entities.coin import Coin
 from src.domain.entities.obstacle import Obstacle, ObstacleType
 from src.domain.value_objects.angle import Angle
 from src.domain.value_objects.vector2d import Vector2D
@@ -586,6 +588,9 @@ class Track:
     description: str = ""
     category: str = "medium"
     obstacles: list[Obstacle] = field(default_factory=list)
+    coins: list[Coin] = field(default_factory=list)
+    default_coin_count: int = 10
+    _coin_rng_seed: int = 1337
     outer_walls: list[TrackSegment] = field(default_factory=list)
     inner_walls: list[TrackSegment] = field(default_factory=list)
     outer_asphalt_polygon: list[Vector2D] = field(default_factory=list)
@@ -601,6 +606,8 @@ class Track:
             self._build_geometry()
         if not self.gates and len(self.outer_wall_polygon) >= 3:
             self._build_gates()
+        if not self.coins and len(self.centerline) >= 3 and self.default_coin_count > 0:
+            self.spawn_random_coins(count=self.default_coin_count, seed=self._coin_rng_seed)
 
     def _build_geometry(self) -> None:
         """Construye los polígonos de asfalto, pianos y muros perimetrales a partir del centerline."""
@@ -698,6 +705,110 @@ class Track:
         if dist <= self.asphalt_half_width + self.kerb_width:
             return SURFACE_CATALOG["kerb"]
         return SURFACE_CATALOG["grass"]
+
+    def is_valid_reachable_coin_spot(
+        self, candidate: Vector2D, existing_coins: list[Coin] | None = None
+    ) -> bool:
+        """Verifica que la posición esté sobre asfalto alcanzable y libre de obstáculos."""
+        # Debe estar estrictamente dentro de la calzada de asfalto con margen respecto al piano
+        if self.distance_to_centerline(candidate) > self.asphalt_half_width * 0.72:
+            return False
+
+        # No puede caer sobre un bache ni mancha de aceite
+        if self.get_surface_at(candidate).name != "asphalt":
+            return False
+
+        # No debe solaparse con conos ni barreras físicas
+        for obs in self.obstacles:
+            clearance = max(obs.radius, obs.width * 0.5) + 28.0
+            if candidate.distance_to(obs.position) < clearance:
+                return False
+
+        # No debe aparecer encima del punto de salida inicial
+        if candidate.distance_to(self.start_position) < 85.0:
+            return False
+
+        # Mantener separación respecto a otras monedas activas
+        if existing_coins:
+            for coin in existing_coins:
+                if coin.active and candidate.distance_to(coin.position) < 55.0:
+                    return False
+
+        return True
+
+    def sample_valid_coin_position(
+        self,
+        rng: random.Random | None = None,
+        existing_coins: list[Coin] | None = None,
+    ) -> Vector2D:
+        """Genera una posición aleatoria garantizada sobre el asfalto transitable de la pista."""
+        gen = rng or random.Random()
+        n = len(self.centerline)
+        max_lat = self.asphalt_half_width * 0.65
+
+        for _ in range(80):
+            idx = gen.randrange(n)
+            nxt = (idx + 1) % n
+            t = gen.random()
+            base_pt = self.centerline[idx] + (self.centerline[nxt] - self.centerline[idx]) * t
+            tangent = (self.centerline[nxt] - self.centerline[(idx - 1) % n]).normalized()
+            normal = Vector2D(-tangent.y, tangent.x)
+            lat_offset = gen.uniform(-max_lat, max_lat)
+            candidate = base_pt + normal * lat_offset
+
+            if self.is_valid_reachable_coin_spot(candidate, existing_coins):
+                return candidate
+
+        # Fallback seguro sobre el centerline lejos de la salida
+        safe_idx = (self.start_index + n // 2) % n
+        return self.centerline[safe_idx]
+
+    def spawn_random_coins(
+        self, count: int | None = None, seed: int | None = None
+    ) -> list[Coin]:
+        """Genera un conjunto de monedas aleatorias en lugares alcanzables de la pista."""
+        target_count = self.default_coin_count if count is None else int(count)
+        rng = random.Random(seed)
+        self.coins = []
+        for i in range(target_count):
+            pos = self.sample_valid_coin_position(rng=rng, existing_coins=self.coins)
+            self.coins.append(
+                Coin(
+                    coin_id=f"coin_{i + 1}",
+                    position=pos,
+                    radius=14.0,
+                    value=1,
+                    active=True,
+                )
+            )
+        return self.coins
+
+    def collect_touched_coins(
+        self,
+        car_position: Vector2D,
+        collection_radius: float = 22.0,
+        respawn: bool = True,
+    ) -> list[Coin]:
+        """Detecta las monedas tocadas por un vehículo y opcionalmente las reubica en otro punto."""
+        collected: list[Coin] = []
+        for coin in self.coins:
+            if not coin.active:
+                continue
+            if car_position.distance_to(coin.position) <= (coin.radius + collection_radius):
+                collected.append(
+                    Coin(
+                        coin_id=coin.coin_id,
+                        position=coin.position,
+                        radius=coin.radius,
+                        value=coin.value,
+                        active=True,
+                    )
+                )
+                if respawn:
+                    coin.position = self.sample_valid_coin_position(existing_coins=self.coins)
+                else:
+                    coin.active = False
+        return collected
 
     @classmethod
     def from_dict(cls, data: dict) -> Track:

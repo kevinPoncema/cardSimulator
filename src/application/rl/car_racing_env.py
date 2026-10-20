@@ -102,6 +102,7 @@ class CarRacingRLEnv:
             self.current_track_idx = (self.current_track_idx + 1) % len(self.tracks)
 
         self.track = self.tracks[self.current_track_idx]
+        self.track.spawn_random_coins()
         self.physics_engine.register_track(self.track)
         self.physics_engine.reset_obstacles()
 
@@ -122,6 +123,8 @@ class CarRacingRLEnv:
         info = {
             "track_name": self.track.name,
             "score": self.car.score,
+            "laps_completed": self.car.laps_completed,
+            "coins_collected": self.car.coins_collected,
             "checkpoints": self.car.checkpoints_passed_in_lap,
         }
         return obs, info
@@ -135,7 +138,7 @@ class CarRacingRLEnv:
         self.car.apply_action(car_action)
 
         prev_pos = self.car.position
-        prev_score = self.car.score
+        prev_laps = self.car.laps_completed
         prev_cp = self.car.checkpoints_passed_in_lap
 
         self.physics_engine.step(self.dt)
@@ -154,6 +157,15 @@ class CarRacingRLEnv:
         if checkpoint_advanced:
             self.total_checkpoints_passed += 1
 
+        # Evaluar recolección de monedas en la pista
+        collected_coins = self.track.collect_touched_coins(
+            self.car.position,
+            collection_radius=self.car.config.width * 0.55,
+            respawn=True,
+        )
+        for coin in collected_coins:
+            self.car.collect_coin(coin.value)
+
         # Detectar sentido contrario
         if self.car.velocity.magnitude() > 35.0:
             tangent = self.track.closest_centerline_tangent(self.car.position)
@@ -169,8 +181,9 @@ class CarRacingRLEnv:
             track=self.track,
             reading=reading,
             gate_crossings=crossings,
-            lap_completed=(self.car.score > prev_score),
+            lap_completed=(self.car.laps_completed > prev_laps),
             checkpoint_advanced=checkpoint_advanced,
+            coins_collected_count=len(collected_coins),
         )
 
         self.episode_reward += reward
@@ -180,6 +193,8 @@ class CarRacingRLEnv:
             "step": self.current_step,
             "episode_reward": self.episode_reward,
             "score": self.car.score,
+            "laps_completed": self.car.laps_completed,
+            "coins_collected": self.car.coins_collected,
             "checkpoints_in_lap": self.car.checkpoints_passed_in_lap,
             "total_checkpoints": self.total_checkpoints_passed,
             "surface": self.car.current_surface_name,

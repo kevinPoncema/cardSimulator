@@ -52,6 +52,7 @@ def build_orchestrator(
     controller_type: str = "human",
     model_path: str | Path | None = None,
     vs_ai: bool = False,
+    num_cars: int = 1,
     lidar_max_range: float = DEFAULT_LIDAR_MAX_RANGE,
     headless: bool = False,
     debug_mode: bool = True,
@@ -92,50 +93,61 @@ def build_orchestrator(
         else (PROJECT_ROOT / "models" / "rl_agent_v1.npz")
     )
 
-    chosen_color = car_color or CAR_PALETTE["crimson_red"]
-    player_car = Car(
-        car_id="car_player_1",
-        position=track.start_position,
-        angle=track.start_angle,
-        color=chosen_color,
-        config=CarConfig(),
-    )
+    total_cars = max(1, int(num_cars))
+    if vs_ai and total_cars < 2:
+        total_cars = 2
 
-    controller: IInputController
-    if controller_type == "rl_ai":
-        controller = RLAgentController(
-            telemetry_provider=telemetry_collector,
-            car_id=player_car.car_id,
-            model_path=default_model_file,
-            handle_window_events=True,
-        )
-    elif controller_type == "dummy_ai":
-        controller = DummyAiController(
-            telemetry_provider=telemetry_collector,
-            car_id=player_car.car_id,
-        )
-    else:
-        controller = HumanKeyboardController()
+    palette_colors = list(CAR_PALETTE.values())
+    chosen_primary_color = car_color or CAR_PALETTE["crimson_red"]
 
-    orchestrator.add_participant(player_car, controller)
+    for idx in range(total_cars):
+        spawn_pos = orchestrator.compute_grid_spawn_position(idx)
+        if idx == 0:
+            c_color = chosen_primary_color
+            c_id = "car_player_1"
+        else:
+            c_color = palette_colors[idx % len(palette_colors)]
+            c_id = f"car_rival_{idx + 1}"
 
-    # Modo carrera contra la Red Neuronal entrenada (--vs-ai)
-    if vs_ai:
-        offset_normal = track.start_angle.to_right_vector() * 36.0
-        rival_car = Car(
-            car_id="car_rl_rival",
-            position=track.start_position + offset_normal,
+        car_entity = Car(
+            car_id=c_id,
+            position=spawn_pos,
             angle=track.start_angle,
-            color=CAR_PALETTE["electric_blue"],
+            color=c_color,
             config=CarConfig(),
         )
-        rival_controller = RLAgentController(
-            telemetry_provider=telemetry_collector,
-            car_id=rival_car.car_id,
-            model_path=default_model_file,
-            handle_window_events=False,
-        )
-        orchestrator.add_participant(rival_car, rival_controller)
+
+        controller: IInputController
+        if idx == 0:
+            if controller_type == "rl_ai":
+                controller = RLAgentController(
+                    telemetry_provider=telemetry_collector,
+                    car_id=car_entity.car_id,
+                    model_path=default_model_file,
+                    handle_window_events=True,
+                )
+            elif controller_type == "dummy_ai":
+                controller = DummyAiController(
+                    telemetry_provider=telemetry_collector,
+                    car_id=car_entity.car_id,
+                )
+            else:
+                controller = HumanKeyboardController()
+        else:
+            if controller_type == "dummy_ai":
+                controller = DummyAiController(
+                    telemetry_provider=telemetry_collector,
+                    car_id=car_entity.car_id,
+                )
+            else:
+                controller = RLAgentController(
+                    telemetry_provider=telemetry_collector,
+                    car_id=car_entity.car_id,
+                    model_path=default_model_file,
+                    handle_window_events=False,
+                )
+
+        orchestrator.add_participant(car_entity, controller)
 
     return orchestrator
 
@@ -175,6 +187,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Añade un segundo coche rival controlado por la Red Neuronal RL entrenada.",
     )
     parser.add_argument(
+        "--num-cars",
+        type=int,
+        default=1,
+        help="Número total de coches simultáneos en la simulación (por defecto: 1).",
+    )
+    parser.add_argument(
         "--lidar-range",
         type=float,
         default=DEFAULT_LIDAR_MAX_RANGE,
@@ -212,6 +230,7 @@ def main(argv: list[str] | None = None) -> int:
         controller_type=args.controller,
         model_path=args.model_path,
         vs_ai=args.vs_ai,
+        num_cars=args.num_cars,
         lidar_max_range=args.lidar_range,
         headless=args.headless,
         debug_mode=True,

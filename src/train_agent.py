@@ -24,7 +24,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--maps",
         nargs="+",
         choices=list(PRESET_MAPS.keys()),
-        default=["kart_classic", "pocket_chicane"],
+        default=["kart_classic", "oval_arena", "pocket_chicane"],
         help="Circuitos sobre los cuales entrenar la red neuronal.",
     )
     parser.add_argument(

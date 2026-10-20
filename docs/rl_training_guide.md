@@ -47,9 +47,14 @@ Todos los premios y castigos se leen desde [`config/reward_config.json`](file://
 | `obstacle_clearance_bonus` | `+0.45` | Premia mantener despejados los rayos frontales/diagonales (esquivar obstáculos con margen). |
 | `checkpoint_reward` | **`+65.0`** | **Premio grande al cruzar cada Checkpoint (`1 -> 2 -> 3`) en el sentido correcto.** |
 | `lap_completion_reward` | **`+250.0`** | **Gran premio al completar una vuelta entera válida (cruzar Meta tras los 3 checkpoints).** |
+| `coin_collected_reward` | **`+45.0`** | **Premio por recolectar cada moneda dorada generada sobre el asfalto transitable.** |
 | `cone_collision_penalty` | **`-40.0`** | **Quita puntos al chocar contra un cono de tráfico.** |
 | `barrier_collision_penalty` | **`-75.0`** | **Quita puntos al estrellarse contra una barrera rígida.** |
-| `wall_collision_penalty` | **`-65.0`** | **Quita puntos al chocar contra el muro perimetral de la pista.** |
+| `wall_collision_penalty` | **`-65.0`** | **Quita puntos al impacto inicial contra el muro perimetral de la pista.** |
+| `wall_stuck_step_penalty` | **`-14.0`** | **Castigo progresivo por cada frame que el coche se queda pegado/atascado contra un muro haciendo micro-correcciones sin retroceder.** |
+| `max_wall_stuck_steps` | `45` | Máximo de pasos continuos atascado contra una pared antes de abortar el episodio. |
+| `wall_stuck_timeout_penalty` | **`-160.0`** | **Castigo severo y terminación si no logra desatascarse del muro a tiempo.** |
+| `reverse_escape_reward` | **`+4.5`** | **Bonificación por cada paso que el coche retrocede activamente (`v_fwd < -15`) para separarse de un muro frontal y corregir su ángulo.** |
 | `pothole_step_penalty` | **`-4.0`** | **Quita puntos en cada frame que el coche pisa un bache gigante.** |
 | `oil_slick_step_penalty` | **`-4.5`** | **Quita puntos en cada frame que el coche pisa una mancha de aceite.** |
 | `grass_step_penalty` | `-1.5` | Quita puntos por salirse al césped. |
@@ -58,7 +63,7 @@ Todos los premios y castigos se leen desde [`config/reward_config.json`](file://
 | `wrong_way_timeout_penalty` | **`-90.0`** | **Castigo severo y fin del episodio si va en sentido contrario durante demasiado tiempo.** |
 | `reverse_finish_line_penalty` | **`-120.0`** | **Castigo severo si cruza la línea de meta en sentido contrario.** |
 | `reverse_checkpoint_penalty` | **`-55.0`** | **Castigo si cruza un checkpoint en sentido contrario.** |
-| `terminate_on_wall_crash` | `true` | Si es `true`, el episodio termina inmediatamente al chocar contra el muro. |
+| `terminate_on_wall_crash` | `false` | Se mantiene en `false` para obligar a la IA a aprender a dar marcha atrás y corregir trayectoria tras tocar una pared en curvas cerradas (como en el Mapa 3 `pocket_chicane`). |
 | `terminate_on_barrier_crash` | `true` | Si es `true`, el episodio termina al chocar contra una barrera de hormigón. |
 | `terminate_on_reverse_finish_line` | `true` | Si es `true`, el episodio termina si cruza la meta al revés. |
 
@@ -66,30 +71,19 @@ Todos los premios y castigos se leen desde [`config/reward_config.json`](file://
 
 ## 4. Comandos para Entrenar y Probar la IA en tu Máquina
 
-### Paso 1: Ejecutar el entrenamiento en tu PC (usando los núcleos de tu Ryzen 7)
+### Paso 1: Ejecutar el entrenamiento en tu PC (incluyendo el Mapa 3 `pocket_chicane`)
 ```bash
-# Entrenamiento rápido inicial (guarda en models/rl_agent_v1.npz)
-.venv/bin/python3 src/train_agent.py --maps kart_classic pocket_chicane --generations 12 --population 20 --workers 8
+# Reentrenamiento con monedas, penalización de atasco en pared y maniobra de reversa
+.venv/bin/python3 src/train_agent.py --maps kart_classic pocket_chicane oval_arena --generations 12 --population 16 --max-steps 700 --workers 8
 ```
 
-Si quieres hacer un entrenamiento más largo sobre circuitos medianos y grandes:
+### Paso 2: Ver a varios coches IA competir y recolectar monedas (`--num-cars`)
 ```bash
-.venv/bin/python3 src/train_agent.py \
-  --maps kart_classic retro_grand_prix canyon_drift megaring_international \
-  --generations 30 \
-  --population 32 \
-  --max-steps 1200 \
-  --workers 8
+.venv/bin/python3 src/main.py --controller rl_ai --map pocket_chicane --num-cars 4
 ```
+*(En la esquina inferior derecha verás el panel en vivo con **Vuelta**, **Checkpoints**, **Monedas** y **Puntos totales** de cada coche).*
 
-### Paso 2: Ver a tu Red Neuronal Conducir Sola
+### Paso 3: Competir Tú (Humano) contra varios coches IA
 ```bash
-.venv/bin/python3 src/main.py --controller rl_ai --map kart_classic
+.venv/bin/python3 src/main.py --controller human --num-cars 4 --map pocket_chicane
 ```
-*(Mientras la IA conduce, puedes pulsar `1-9, 0, -, =` o `M`/`N` para cambiarla de circuito en caliente y ver cómo reacciona a curvas y obstáculos nuevos, o `F3` para ver sus rayos LIDAR).*
-
-### Paso 3: Competir Tú (Humano) contra tu Red Neuronal (`--vs-ai`)
-```bash
-.venv/bin/python3 src/main.py --vs-ai --map retro_grand_prix
-```
-Esto coloca tu coche rojo junto al coche azul controlado por `models/rl_agent_v1.npz` en la línea de salida.

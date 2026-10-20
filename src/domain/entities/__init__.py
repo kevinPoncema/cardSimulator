@@ -1,6 +1,7 @@
 """Exportación de entidades de la capa de dominio."""
 
 from src.domain.entities.car import Car, CarConfig
+from src.domain.entities.coin import Coin
 from src.domain.entities.obstacle import Obstacle, ObstacleType
 from src.domain.entities.sensor_reading import (
     DEFAULT_LIDAR_MAX_RANGE,
@@ -22,6 +23,7 @@ from src.domain.entities.track import (
 __all__ = [
     "Car",
     "CarConfig",
+    "Coin",
     "DEFAULT_LIDAR_MAX_RANGE",
     "LIDAR_RAY_SPECS",
     "Obstacle",
